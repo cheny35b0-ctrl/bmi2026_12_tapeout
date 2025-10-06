@@ -14,6 +14,10 @@ wire SERIAL_OPT, SERIAL_ELE;
 COM_CON_TOP COM_CON_OPT(
 .CLK(CLK),
 .POR(POR),
+// COM_CON_TOPの入力ポートADC_stateにS_Bias_OPTを接続
+// 子供 親の順番になる。
+// 親モジュールの入力をそのまま子モジュールに渡す形
+// それぞれのモジュールが独立していれば出力 => 入力の形になる
 .ADC_state(S_Bias_OPT),
 .DATA(DATA_OPT[9:0]),
 .OPERATE(OPERATE_OPT),

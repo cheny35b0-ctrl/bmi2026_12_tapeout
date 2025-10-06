@@ -24,19 +24,22 @@ reg [2:0] state;
 wire [7:0] address_delay;
 reg ADC_delay, ADC_edge;
 
-
-always@(posedge CLK or negedge POR)begin
-    if(!POR)begin
+// クロックの立ち上がりエッジまたはリセットの立ち下がりエッジで動作
+always@(posedge CLK or negedge POR) begin
+    if(!POR) begin
        ADC_edge <= 1'b0;
        ADC_delay <= 1'b0;
        end
     else begin
+       ADC_edge <= !ADC_state && ADC_delay;
        ADC_delay <= ADC_state;
-       ADC_edge <= !ADC_state&&ADC_delay;
       end
 end      
 
-always@(posedge CLK or negedge POR)begin
+// クロックの立ち上がりエッジまたはリセットの立ち下がりエッジで動作
+// TODO 同じ条件だからまとめる。
+// 複数行にわたっている場合はbegin endで囲む
+always@(posedge CLK or negedge POR) begin
    if(!POR)
     state_EN <= 1'b0;
    else if(!ADC_state)
@@ -48,42 +51,42 @@ always@(posedge CLK or negedge POR)begin
      state_EN <= 1'b0;
 end
  
-always@(posedge CLK or negedge POR)begin
+always@(posedge CLK or negedge POR) begin
     if(!POR)
       state <= none;
     else
        case(state)
          none:
-            if((OPERATE == 1'b1)&&(DELAY == 4'b0000)&&(def_delay == 10'd0)&&(state_EN == 1'b1))
+            if((OPERATE == 1'b1) && (DELAY == 4'b0000) && (def_delay == 10'd0) && (state_EN == 1'b1))
                      state <= on;
-            else if ((OPERATE == 1'b1)&&(DELAY >= address_delay)&&(state_EN == 1'b1))
+            else if ((OPERATE == 1'b1) && (DELAY >= address_delay) && (state_EN == 1'b1))
                      state <= delay;
             else
                      state <= none;
          delay:
-            if((OPERATE == 1'b1)&&(DELAY == address_delay)&&(def_delay ==10'd0))
+            if((OPERATE == 1'b1) && (DELAY == address_delay) && (def_delay == 10'd0))
                      state <= on;
-            else if((OPERATE == 1'b1)&&(DELAY <= address_delay)&&(def_delay > 10'd0))
+            else if((OPERATE == 1'b1) && (DELAY <= address_delay) && (def_delay > 10'd0))
                      state <= delay_last;
             else
                      state <= delay;
          delay_last:
-            if((OPERATE == 1'b1)&&(DELAY <= address_delay)&&(def_delay <= com_delay))
+            if((OPERATE == 1'b1) && (DELAY <= address_delay) && (def_delay <= com_delay))
                      state <= on;
             else
                      state <= delay_last;
          on:
-            if((OPERATE == 1'b1)&&(en_last > 16'd237) )
+            if((OPERATE == 1'b1) && (en_last > 16'd237))
                      state <= fin;
             else
                      state <= on;
          fin:
-            if((OPERATE == 1'b1)&&(ADC_state == 1'b1))
+            if((OPERATE == 1'b1) && (ADC_state == 1'b1))
                      state <= none;
             else
                      state <= fin;
-      
-          default state <= none;
+
+          default: state <= none;
           endcase
 end
 
