@@ -1,7 +1,7 @@
 //Verilog HDL for "BMI_digital_sakata_v1", "COUNTER_COMCON" "functional"
 
 module COUNTER_COMCON(
-       input CLK, CLK25, POR, ADC_state, ENABLE,
+       input CLK, CLK50, POR, ADC_state, ENABLE,
        input [2:0] state,
        output reg C_OUT1
 );
@@ -9,7 +9,7 @@ module COUNTER_COMCON(
 always@(posedge CLK or negedge POR)begin
          if (!POR)
            C_OUT1 <= 1'b0;
-         else if ((state == 3'b001) && (CLK25 == 1'b1))
+         else if ((state == 3'b001) && (CLK50 == 1'b1))
            C_OUT1 <= !C_OUT1;
          else if (state != 3'b001)
            C_OUT1 <= 1'b0;

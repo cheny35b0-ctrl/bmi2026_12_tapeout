@@ -10,7 +10,7 @@ module COM_CON_TOP (
 
 // ?????????
 // ???????reg?????
-wire C_OUT1, S_OUT, S_ADDRESS, CLK25;
+wire C_OUT1, S_OUT, S_ADDRESS, CLK50;
 wire [2:0] state_comcon;
 
 //??????(delay ??)
@@ -20,7 +20,7 @@ COM_ENABLE COM_ENABLE(
 .DELAY(ADDRESS[3:0]),
 .OPERATE(OPERATE),
 .def_delay(def_delay[9:0]),
-.CLK25(CLK25),
+.CLK50(CLK50),
 .ENABLE(ENABLE)
 );
 
@@ -28,7 +28,7 @@ COM_ENABLE COM_ENABLE(
 // ??????????
 COUNTER_COMCON COUNTER_COMCON(
 .CLK(CLK),
-.CLK25(CLK25),
+.CLK50(CLK50),
 .POR(POR),
 .ADC_state(ADC_state),
 .ENABLE(ENABLE),
@@ -39,7 +39,7 @@ COUNTER_COMCON COUNTER_COMCON(
 // ????????
 SHIFT_REG SHIFT_REG(
 .CLK(CLK),
-.CLK25(CLK25),
+.CLK50(CLK50),
 .POR(POR),
 .ADC_state(ADC_state),
 .ENABLE(ENABLE),
@@ -51,7 +51,7 @@ SHIFT_REG SHIFT_REG(
 // state
 SELECT SELECT(
 .CLK(CLK),
-.CLK25(CLK25),
+.CLK50(CLK50),
 .POR(POR),
 .ADC_state(ADC_state),
 .ENABLE(ENABLE),
