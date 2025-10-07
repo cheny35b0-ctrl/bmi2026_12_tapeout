@@ -1,6 +1,6 @@
-// OPERATE_ENCODER - Encodes OPERATE_OPT and OPERATE_ELE signals into 2-bit output
+// MEASUREMENT_TYPE_ENCODER - Encodes OPERATE_OPT and OPERATE_ELE signals into 2-bit output
 
-module OPERATE_ENCODER (
+module MEASUREMENT_TYPE_ENCODER (
     input CLK, POR,
     input OPERATE_OPT,
     input OPERATE_ELE,

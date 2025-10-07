@@ -2,8 +2,8 @@
 module COM_ENABLE(
      input CLK,POR,ADC_STATE,
      input [3:0] DELAY,
-     input OPERATE, 
-     input [9:0] def_delay,
+     input [1:0] OPERATE, 
+     input [9:0] OPT_DELAY, ELE_DELAY,
      output reg ENABLE,
      output CLK50
      //output reg [2:0] state
@@ -14,6 +14,12 @@ localparam none = 3'b000, delay = 3'b001, delay_last = 3'b010, on = 3'b011, fin 
 
 wire [15:0] com_delay,en_last;
 reg state_EN;
+
+// OPERATEに基づいて適切なディレイを選択
+wire [9:0] selected_delay;
+assign selected_delay = (OPERATE == 2'b01) ? OPT_DELAY :  // 光刺激
+                        (OPERATE == 2'b10) ? ELE_DELAY :  // 電気刺激
+                        10'd0;                             // その他
 
 counter_16bit COM_DELAY(.CLK(CLK),.POR(POR),.RST(!state_EN),
                         .COUNT_UP(ADC_STATE == 1'b0),.PERIOD(16'd500),.COUNT(com_delay));
@@ -57,31 +63,31 @@ always@(posedge CLK or negedge POR) begin
     else
        case(state)
          none:
-            if((OPERATE == 1'b1) && (DELAY == 4'b0000) && (def_delay == 10'd0) && (state_EN == 1'b1))
+            if((|OPERATE) && (DELAY == 4'b0000) && (selected_delay == 10'd0) && (state_EN == 1'b1))
                      state <= on;
-            else if ((OPERATE == 1'b1) && (DELAY >= address_delay) && (state_EN == 1'b1))
+            else if ((|OPERATE) && (DELAY >= address_delay) && (state_EN == 1'b1))
                      state <= delay;
             else
                      state <= none;
          delay:
-            if((OPERATE == 1'b1) && (DELAY == address_delay) && (def_delay == 10'd0))
+            if((|OPERATE) && (DELAY == address_delay) && (selected_delay == 10'd0))
                      state <= on;
-            else if((OPERATE == 1'b1) && (DELAY <= address_delay) && (def_delay > 10'd0))
+            else if((|OPERATE) && (DELAY <= address_delay) && (selected_delay > 10'd0))
                      state <= delay_last;
             else
                      state <= delay;
          delay_last:
-            if((OPERATE == 1'b1) && (DELAY <= address_delay) && (def_delay <= com_delay))
+            if((|OPERATE) && (DELAY <= address_delay) && (selected_delay <= com_delay))
                      state <= on;
             else
                      state <= delay_last;
          on:
-            if((OPERATE == 1'b1) && (en_last > 16'd237))
+            if((|OPERATE) && (en_last > 16'd237))
                      state <= fin;
             else
                      state <= on;
          fin:
-            if((OPERATE == 1'b1) && (ADC_STATE == 1'b1))
+            if((|OPERATE) && (ADC_STATE == 1'b1))
                      state <= none;
             else
                      state <= fin;
@@ -109,7 +115,7 @@ end
 
 //CLK50 generation
 wire [3:0] cnt2;
-assign CLK50 = (cnt2 == 4'd1;
-counter_4bit CLK50_divider(.CLK(CLK),.POR(POR),.RST(!state_EN),.COUNT_UP((OPERATE==1'b1)&&(ADC_STATE==1'b0)),.PERIOD(4'd2),.COUNT(cnt2));
+assign CLK50 = (cnt2 == 4'd1);
+counter_4bit CLK50_divider(.CLK(CLK),.POR(POR),.RST(!state_EN),.COUNT_UP((|OPERATE)&&(ADC_STATE==1'b0)),.PERIOD(4'd2),.COUNT(cnt2));
 
 endmodule

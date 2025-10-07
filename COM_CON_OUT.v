@@ -14,7 +14,6 @@ wire [19:0] DATA;
 assign DATA = {DATA_OPT, DATA_ELE};
 
 localparam OPT_DELAY = 10'd000, ELE_DELAY = 10'd250;
-localparam TYPE_OPT = 1'b0, TYPE_ELE = 1'b1;
 
 wire ENABLE_WIRE;
 
