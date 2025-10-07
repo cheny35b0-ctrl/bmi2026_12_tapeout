@@ -1,6 +1,6 @@
 
 module COM_ENABLE(
-     input CLK,POR,ADC_state,
+     input CLK,POR,ADC_STATE,
      input [3:0] DELAY,
      input OPERATE, 
      input [9:0] def_delay,
@@ -16,7 +16,7 @@ wire [15:0] com_delay,en_last;
 reg state_EN;
 
 counter_16bit COM_DELAY(.CLK(CLK),.POR(POR),.RST(!state_EN),
-                        .COUNT_UP(ADC_state == 1'b0),.PERIOD(16'd500),.COUNT(com_delay));
+                        .COUNT_UP(ADC_STATE == 1'b0),.PERIOD(16'd500),.COUNT(com_delay));
 
 counter_16bit EN_LAST(.CLK(CLK),.POR(POR),.RST(!state_EN),.COUNT_UP(ENABLE),.PERIOD(16'd500),.COUNT(en_last));
 
@@ -31,8 +31,8 @@ always@(posedge CLK or negedge POR) begin
        ADC_delay <= 1'b0;
        end
     else begin
-       ADC_edge <= !ADC_state && ADC_delay;
-       ADC_delay <= ADC_state;
+       ADC_edge <= !ADC_STATE && ADC_delay;
+       ADC_delay <= ADC_STATE;
       end
 end      
 
@@ -42,7 +42,7 @@ end
 always@(posedge CLK or negedge POR) begin
    if(!POR)
     state_EN <= 1'b0;
-   else if(!ADC_state)
+   else if(!ADC_STATE)
      if(ADC_edge)
         state_EN <= 1'b1;
      else
@@ -81,7 +81,7 @@ always@(posedge CLK or negedge POR) begin
             else
                      state <= on;
          fin:
-            if((OPERATE == 1'b1) && (ADC_state == 1'b1))
+            if((OPERATE == 1'b1) && (ADC_STATE == 1'b1))
                      state <= none;
             else
                      state <= fin;
@@ -110,6 +110,6 @@ end
 //CLK50 generation
 wire [3:0] cnt2;
 assign CLK50 = (cnt2 == 4'd1;
-counter_4bit CLK50_divider(.CLK(CLK),.POR(POR),.RST(!state_EN),.COUNT_UP((OPERATE==1'b1)&&(ADC_state==1'b0)),.PERIOD(4'd2),.COUNT(cnt2));
+counter_4bit CLK50_divider(.CLK(CLK),.POR(POR),.RST(!state_EN),.COUNT_UP((OPERATE==1'b1)&&(ADC_STATE==1'b0)),.PERIOD(4'd2),.COUNT(cnt2));
 
 endmodule

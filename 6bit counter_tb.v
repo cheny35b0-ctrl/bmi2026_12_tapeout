@@ -1,10 +1,10 @@
 module COUNT_tb();
-reg CLK, ADC_state, POR;
+reg CLK, ADC_STATE, POR;
 wire C_OUT1, C_OUT6, CNT4, CNT128, C_OUT5,CNT64,CNT124;
 wire [2:0] cnt4;
 wire [8:0] cnt128;
 
-COUNTER COUNTER(.CLK(CLK),.ADC_state(ADC_state),.POR(POR),.C_OUT1(C_OUT1),.C_OUT6(C_OUT6),.CNT4(CNT4),.CNT128(CNT128));
+COUNTER COUNTER(.CLK(CLK),.ADC_STATE(ADC_STATE),.POR(POR),.C_OUT1(C_OUT1),.C_OUT6(C_OUT6),.CNT4(CNT4),.CNT128(CNT128));
 //CLOCK generation//
 always begin
      CLK = 1'b1;
@@ -26,18 +26,18 @@ initial fork
 join
 
 initial fork
-          ADC_state = 1'b1;
-#500000   ADC_state = 1'b0;
-#20000000 ADC_state = 1'b1;
-#22000000 ADC_state = 1'b0;
-#32000000 ADC_state = 1'b1;
-#33000000 ADC_state = 1'b0;
-#45050000 ADC_state = 1'b1;
-#50250000 ADC_state = 1'b0;
-#70250000 ADC_state = 1'b1;
-#72250000 ADC_state = 1'b0;
-#73250000 ADC_state = 1'b1;
-#75250000 ADC_state = 1'b0;
+          ADC_STATE = 1'b1;
+#500000   ADC_STATE = 1'b0;
+#20000000 ADC_STATE = 1'b1;
+#22000000 ADC_STATE = 1'b0;
+#32000000 ADC_STATE = 1'b1;
+#33000000 ADC_STATE = 1'b0;
+#45050000 ADC_STATE = 1'b1;
+#50250000 ADC_STATE = 1'b0;
+#70250000 ADC_STATE = 1'b1;
+#72250000 ADC_STATE = 1'b0;
+#73250000 ADC_STATE = 1'b1;
+#75250000 ADC_STATE = 1'b0;
 #76260000 $stop;
 join
 

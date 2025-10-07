@@ -1,5 +1,5 @@
 module COUNTER(
-    input CLK, ADC_state,
+    input CLK, ADC_STATE,
     input POR, //asynchronous reset
     output reg C_OUT1, C_OUT6,
     output CNT4, CNT128,CNT124
@@ -37,9 +37,9 @@ assign CNT124 = (cnt128==9'd123); //enable signal for shift register
 always@(posedge CLK or negedge POR)begin
     if(!POR)
      EN <= 1'b0;
-    else if(ADC_state)
+    else if(ADC_STATE)
      EN <= 1'b0;
-    else if((ADC_state==1'b0) && (C_OUT5==1'b1) && (C_OUT6==1'b1))
+    else if((ADC_STATE==1'b0) && (C_OUT5==1'b1) && (C_OUT6==1'b1))
      EN <= 1'b0;
     else
      EN <= 1'b1;
@@ -51,7 +51,7 @@ end
 always@(posedge CLK or negedge POR)begin
     if(!POR)
      cnt4 <= 3'b0;
-    else if(ADC_state)
+    else if(ADC_STATE)
      cnt4 <= 3'b0;
     else if(CNT4)
      cnt4 <= 3'b0;
@@ -65,7 +65,7 @@ end
 always@(posedge CLK or negedge POR)begin
     if(!POR)
      cnt128 <= 9'b0;
-    else if(ADC_state)
+    else if(ADC_STATE)
      cnt128 <= 9'b0;
     else if(CNT128)
      cnt128 <= 9'b0;
@@ -79,7 +79,7 @@ end
 always@(posedge CLK or negedge POR)begin
     if(!POR)
       C_OUT1 <= 1'b0;
-    else if(ADC_state)
+    else if(ADC_STATE)
       C_OUT1 <= 1'b0;
     else if(CNT4)
        //C_OUT1 <= DELAY;
@@ -92,7 +92,7 @@ end
 always@(posedge CLK or negedge POR)begin
     if(!POR)
        C_OUT5 <= 1'b0;
-    else if(ADC_state)
+    else if(ADC_STATE)
        C_OUT5 <= 1'b0;
     else if(CNT64 | CNT128)
        C_OUT5 <= !C_OUT5;
@@ -104,7 +104,7 @@ end
 always@(posedge CLK or negedge POR)begin
     if(!POR)
        C_OUT6 <= 1'b0;
-    else if(ADC_state)
+    else if(ADC_STATE)
        C_OUT6 <= 1'b0;   
     else if(CNT128)
        C_OUT6 <= !C_OUT6;
