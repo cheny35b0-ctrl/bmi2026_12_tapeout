@@ -92,27 +92,27 @@ always@(posedge CLK or negedge POR)begin
               else
                 state <= none;
             counter:
-              if((ENABLE == 1'b1) && (comcon_out >= 8'd34))
+              if((ENABLE == 1'b1) && (comcon_out >= 8'd33))
                 state <= address;
               else
                 state <= counter;
             address:
-              if((ENABLE == 1'b1) && (comcon_out >= 8'd42))
+              if((ENABLE == 1'b1) && (comcon_out >= 8'd41))
                 state <= type;
               else
                 state <= address;
             type:
-              if((ENABLE == 1'b1) && (comcon_out >= 8'd44))
+              if((ENABLE == 1'b1) && (comcon_out >= 8'd43))
                 state <= shift;
               else
                 state <= type;
             shift:
-              if((ENABLE == 1'b1) && (comcon_out >= 8'd64))
+              if((ENABLE == 1'b1) && (comcon_out >= 8'd63))
                 state <= stop;
               else
                 state <= shift;
             stop:
-              if((ENABLE == 1'b1) && (comcon_out >= 8'd67))
+              if((ENABLE == 1'b1) && (comcon_out >= 8'd66))
                 state <= fin;
               else
                 state <= stop;

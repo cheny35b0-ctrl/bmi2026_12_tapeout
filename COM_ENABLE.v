@@ -2,27 +2,20 @@
 module COM_ENABLE(
      input CLK,POR,ADC_STATE,
      input [3:0] DELAY,
-     input [1:0] OPERATE, 
-     input [9:0] OPT_DELAY, ELE_DELAY,
+     input [1:0] OPERATE,
      output reg ENABLE,
      output CLK50
      //output reg [2:0] state
 
 );
 //ENABLE generation
-localparam none = 3'b000, delay = 3'b001, delay_last = 3'b010, on = 3'b011, fin = 3'b100;
+localparam none = 3'b000, delay = 3'b001, on = 3'b010, fin = 3'b011;
 
-wire [15:0] com_delay,en_last;
+wire [15:0] clk_div_500,en_last;
 reg state_EN;
 
-// OPERATEに基づいて適切なディレイを選択
-wire [9:0] selected_delay;
-assign selected_delay = (OPERATE == 2'b01) ? OPT_DELAY :  // 光刺激
-                        (OPERATE == 2'b10) ? ELE_DELAY :  // 電気刺激
-                        10'd0;                             // その他
-
 counter_16bit COM_DELAY(.CLK(CLK),.POR(POR),.RST(!state_EN),
-                        .COUNT_UP(ADC_STATE == 1'b0),.PERIOD(16'd500),.COUNT(com_delay));
+                        .COUNT_UP(ADC_STATE == 1'b0),.PERIOD(16'd500),.COUNT(clk_div_500));
 
 counter_16bit EN_LAST(.CLK(CLK),.POR(POR),.RST(!state_EN),.COUNT_UP(ENABLE),.PERIOD(16'd500),.COUNT(en_last));
 
@@ -30,7 +23,6 @@ reg [2:0] state;
 wire [7:0] address_delay;
 reg ADC_delay, ADC_edge;
 
-// クロックの立ち上がりエッジまたはリセットの立ち下がりエッジで動作
 always@(posedge CLK or negedge POR) begin
     if(!POR) begin
        ADC_edge <= 1'b0;
@@ -44,7 +36,6 @@ end
 
 // クロックの立ち上がりエッジまたはリセットの立ち下がりエッジで動作
 // TODO 同じ条件だからまとめる。
-// 複数行にわたっている場合はbegin endで囲む
 always@(posedge CLK or negedge POR) begin
    if(!POR)
     state_EN <= 1'b0;
@@ -63,25 +54,24 @@ always@(posedge CLK or negedge POR) begin
     else
        case(state)
          none:
-            if((|OPERATE) && (DELAY == 4'b0000) && (selected_delay == 10'd0) && (state_EN == 1'b1))
+            // DELAY == 0の場合はadc変換終了直後にon
+            if((|OPERATE) && (DELAY == 4'b0000) && (state_EN == 1'b1))
                      state <= on;
+            // それ以外の場合はADC変換終了直後にdelayへ
+            // state_ENが1の時address_delayは0になる。
+            // ちなみにdelayに状態が遷移するまではずっと0のまま
             else if ((|OPERATE) && (DELAY >= address_delay) && (state_EN == 1'b1))
                      state <= delay;
             else
                      state <= none;
          delay:
-            if((|OPERATE) && (DELAY == address_delay) && (selected_delay == 10'd0))
+            // addressに対して順番にonになる
+            if((|OPERATE) && (DELAY == address_delay))
                      state <= on;
-            else if((|OPERATE) && (DELAY <= address_delay) && (selected_delay > 10'd0))
-                     state <= delay_last;
             else
                      state <= delay;
-         delay_last:
-            if((|OPERATE) && (DELAY <= address_delay) && (selected_delay <= com_delay))
-                     state <= on;
-            else
-                     state <= delay_last;
          on:
+            // 通信時間を測定
             if((|OPERATE) && (en_last > 16'd237))
                      state <= fin;
             else
@@ -97,7 +87,7 @@ always@(posedge CLK or negedge POR) begin
 end
 
 counter_8bit delay_counter(.CLK(CLK),.POR(POR),.RST(!state_EN),
-                           .COUNT_UP( ( (state == delay)||(state == delay_last) ) && (com_delay ==16'd499)),
+                           .COUNT_UP( (state == delay) && (clk_div_500 ==16'd499)),
                            .PERIOD(8'b0001_0000),.COUNT(address_delay));
 
 always@(posedge CLK or negedge POR)begin
