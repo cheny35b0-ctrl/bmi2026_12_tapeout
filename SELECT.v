@@ -121,7 +121,7 @@ always@(posedge CLK or negedge POR)begin
                 state <= none;
               else
                 state <= fin;
-           default state <= none;
+           default: state <= none;
          endcase
 end
 
