@@ -95,10 +95,6 @@ always@(posedge CLK or negedge POR)begin
          ENABLE <= 1'b0;
       else if(state == on)
          ENABLE <= 1'b1;
-      else if(state == none)
-         ENABLE <= 1'b0;
-      else if(state == fin)
-         ENABLE <= 1'b0;
       else
          ENABLE <= 1'b0;
 end

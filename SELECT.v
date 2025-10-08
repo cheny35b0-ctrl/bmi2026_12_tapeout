@@ -6,10 +6,10 @@ module SELECT (
     input [1:0] TYPE,
     input [7:0] ADDRESS,
     output reg OUT,
-    output reg [2:0] state,
-    output [7:0] comcon_out
+    output reg [2:0] state
 );
 
+wire [7:0] comcon_out;
 
 localparam none = 3'b000, counter = 3'b001, address = 3'b010 ,type = 3'b011, shift = 3'b100,  stop = 3'b101, fin = 3'b110;
 
@@ -23,7 +23,6 @@ counter_8bit COMCON_OUT(
 );
 
 //address para to seri
-// ????????????
 reg [7:0] P_ADDRESS;
 reg S_ADDRESS;
 
