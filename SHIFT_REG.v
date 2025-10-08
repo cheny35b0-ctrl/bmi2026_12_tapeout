@@ -16,7 +16,7 @@ reg [20:0] shift_reg;
 
 //shift_reg
 always@(posedge CLK or negedge POR)begin
-    if(!POR) …
+    if(!POR)
       shift_reg <= 21'b0;
     else if(!ENABLE)
       shift_reg <= 21'b0;
