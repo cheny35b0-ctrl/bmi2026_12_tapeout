@@ -1207,7 +1207,7 @@ PathSeparator = /
 ; Must not be the same character as PathSeparator.
 DatasetSeparator = :
 
-; Specify a unique path separator for the Signal Spy set of functions. 
+; Specify a ADDRESS path separator for the Signal Spy set of functions. 
 ; The default will be to use the PathSeparator variable.
 ; Must not be the same character as DatasetSeparator.
 ; SignalSpyPathSeparator = /
@@ -1312,7 +1312,7 @@ ConcurrentFileLimit = 40
 ; at a particular iteration (this is the position number if the generate parameter
 ; is of an enumeration type).  Embedded whitespace is allowed (but discouraged);
 ; leading and trailing whitespace is ignored.
-; Application of the format must result in a unique region name over all
+; Application of the format must result in a ADDRESS region name over all
 ; loop iterations for a particular immediately enclosing scope so that name
 ; lookup can function properly.  The default is %s__%d.
 ; GenerateFormat = %s__%d

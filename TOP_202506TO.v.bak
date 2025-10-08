@@ -6,7 +6,7 @@ module TOP_202506TO(
 	input ORDER,
 	
 	input POR,
-    input [2:0] unique_low,
+    input [2:0] ADDRESS_low,
 
 //manchester decoder
     input MAN,
@@ -59,11 +59,11 @@ module TOP_202506TO(
 
 //address
 // 8bitの信号線を定義
-wire [7:0] unique;
-// 上位5bitを0に固定し、下位3bitをunique_lowから取得
+wire [7:0] ADDRESS;
+// 上位5bitを0に固定し、下位3bitをADDRESS_lowから取得
 // bは2進数を表す
-assign unique[7:3] = 5'b00000;
-assign unique[2:0] = unique_low[2:0];
+assign ADDRESS[7:3] = 5'b00000;
+assign ADDRESS[2:0] = ADDRESS_low[2:0];
 
 //ローカル変数
 localparam general = 8'b1111_1111;
@@ -82,7 +82,7 @@ MAN_DECODER MAN_DECODER(
 //command(マスターデバイスからのコマンドを受信)
 wire [399:0] command;
 COMMAND COMMAND(
-.unique(unique),
+.ADDRESS(ADDRESS),
 .general(general),
 .CLK(CLK),
 .POR(POR),
@@ -201,7 +201,7 @@ COM_CON_OUT COM_CON_OUT(
 .OPERATE_ELE(command[15]),
 .DATA_OPT(DATA_OPT[9:0]),
 .DATA_ELE(DATA_ELE[9:0]),
-.ADDRESS(unique[7:0]),
+.ADDRESS(ADDRESS[7:0]),
 .COM_EN_OPT(COM_EN_OPT),
 .COM_EN_ELE(COM_EN_ELE),
 .OUT(SERIAL_OUT)

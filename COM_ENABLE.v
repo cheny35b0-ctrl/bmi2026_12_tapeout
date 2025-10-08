@@ -1,7 +1,7 @@
 
 module COM_ENABLE(
      input CLK,POR,ADC_STATE,
-     input [3:0] DELAY,
+     input [5:0] DELAY,
      input [1:0] OPERATE,
      output reg ENABLE,
      output CLK50
@@ -55,7 +55,7 @@ always@(posedge CLK or negedge POR) begin
        case(state)
          none:
             // DELAY == 0の場合はadc変換終了直後にon
-            if((|OPERATE) && (DELAY == 4'b0000) && (state_EN == 1'b1))
+            if((|OPERATE) && (DELAY == 6'b000000) && (state_EN == 1'b1))
                      state <= on;
             // それ以外の場合はADC変換終了直後にdelayへ
             // state_ENが1の時address_delayは0になる。
@@ -88,7 +88,7 @@ end
 
 counter_8bit delay_counter(.CLK(CLK),.POR(POR),.RST(!state_EN),
                            .COUNT_UP( (state == delay) && (clk_div_500 ==16'd499)),
-                           .PERIOD(8'b0001_0000),.COUNT(address_delay));
+                           .PERIOD(8'b0100_0000),.COUNT(address_delay));
 
 always@(posedge CLK or negedge POR)begin
       if (!POR)
