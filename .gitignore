@@ -1,0 +1,33 @@
+# Backup files
+*.bak
+
+# ModelSim/QuestaSim files
+*.mpf
+work/
+transcript
+
+# Quartus files
+*.qpf
+*.qsf
+*.qws
+db/
+incremental_db/
+output_files/
+simulation/
+*.rpt
+*.summary
+*.done
+*.jdi
+*.pin
+*.sof
+*.pof
+
+# Waveform files
+*.wlf
+*.vstf
+
+# Other temporary files
+*~
+*.swp
+*.swo
+.DS_Store
