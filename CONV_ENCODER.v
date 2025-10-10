@@ -20,8 +20,6 @@ reg encoding;                      // 符号化中フラグ
 // G0 = 7 (111): c0 = d[k] XOR S0 XOR S1
 // G1 = 5 (101): c1 = d[k] XOR S1
 
-// ASK ここのwireっているの？
-// 下でassignしているけどどこと繋がっているのかが全然わからない。
 wire input_bit;
 wire c0, c1;
 

@@ -158,24 +158,24 @@ always@(posedge CLK or negedge POR)begin
            OUT <= 1'b0;
        else if (state == none)
            OUT <= 1'b0;
-       else if(CLK5 == 1'b1)
+       else if (CLK5 == 1'b1)
            if(state == counter)
-           OUT <= C_OUT1;
+              OUT <= C_OUT1;
            else if(state == shift)
-           OUT <= S_OUT;
+              OUT <= S_OUT;
            else if(state == encode)
-           // 符号化ON時: SHIFT_REGからの出力（S_OUT）を使用
-           OUT <= S_OUT;
+              // 符号化ON時: SHIFT_REGからの出力（S_OUT）を使用
+              OUT <= S_OUT;
            else if(state == address)
-           OUT <= S_ADDRESS;
+              OUT <= S_ADDRESS;
            else if(state == type)
-           OUT <= S_TYPE;
+              OUT <= S_TYPE;
            else if(state == stop)
-           OUT <= 1'b1;
+              OUT <= 1'b1;
            else if(state == fin)
-           OUT <= 1'b0;
+              OUT <= 1'b0;
            else
-           OUT <= OUT;
+              OUT <= OUT;
        else
            OUT <= OUT;
 

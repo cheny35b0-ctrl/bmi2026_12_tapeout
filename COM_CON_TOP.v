@@ -41,7 +41,7 @@ CONV_ENCODER CONV_ENCODER(
     .POR(POR),
     .START(encoder_start),
     .DATA_IN(encoder_input),
-    .DATA_OUT(encoder_output),
+    .DATA_OUT(encoder_output)
 );
 
 // データセレクタ（符号化ON/OFFでデータを選択）
