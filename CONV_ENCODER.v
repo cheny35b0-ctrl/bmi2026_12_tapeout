@@ -7,7 +7,7 @@ module CONV_ENCODER (
     input POR,
     input START,                    // 符号化開始信号
     input [31:0] DATA_IN,          // 入力データ（32bit: 30bit + 終端2bit）
-    output reg [63:0] DATA_OUT,    // 符号化後データ（64bit）
+    output reg [63:0] DATA_OUT    // 符号化後データ（64bit）
 );
 
 // 内部レジスタ
@@ -53,8 +53,9 @@ always @(posedge CLK or negedge POR) begin
     else if (encoding) begin
         // 符号化処理
         // 出力ビット格納（c0を先に、次にc1）LSBファースト
-        encoded_data[(bit_counter * 2)] <= c0;
-        encoded_data[(bit_counter * 2 + 1)] <= c1;
+        // ブロッキング代入で即座に反映
+        encoded_data[(bit_counter * 2)] = c0;
+        encoded_data[(bit_counter * 2 + 1)] = c1;
 
         // 状態更新（シフトレジスタ）
         // 次の計算用にstateの状態をシフトしている
@@ -63,9 +64,10 @@ always @(posedge CLK or negedge POR) begin
 
         // カウンタ更新
         if (bit_counter == 6'd31) begin
-            // 符号化完了
+            // 符号化完了（ブロッキング代入により最新のencoded_dataが見える）
             DATA_OUT <= encoded_data;
             encoding <= 1'b0;
+            bit_counter <= 6'd0;
         end
         else begin
             bit_counter <= bit_counter + 1;

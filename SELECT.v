@@ -6,7 +6,6 @@ module SELECT (
     input [1:0] TYPE,
     input [7:0] ADDRESS,
     input ENCODE_ENABLE,           // 符号化ON/OFFフラグ
-    input [63:0] ENCODED_DATA,     // 符号化後データ（64bit）
     output reg OUT,
     output reg [2:0] state
 );

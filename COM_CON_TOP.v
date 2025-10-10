@@ -96,7 +96,6 @@ SELECT SELECT(
 .OUT(OUT),
 .ADDRESS(ADDRESS[7:0]),
 .ENCODE_ENABLE(ENCODE_ENABLE),
-.ENCODED_DATA(encoder_output)        // 符号化データ（未使用だがポート接続のため）
 );
 
 endmodule
