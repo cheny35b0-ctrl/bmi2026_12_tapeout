@@ -7,12 +7,13 @@ module CONV_ENCODER (
     input POR,
     input START,                    // 符号化開始信号
     input [31:0] DATA_IN,          // 入力データ（32bit: 30bit + 終端2bit）
-    output reg [63:0] DATA_OUT    // 符号化後データ（64bit）
+    output reg [63:0] DATA_OUT,   // 符号化後データ（64bit）
+    output reg ENCODE_DONE         // 符号化完了信号
 );
 
 // 内部レジスタ
 reg [1:0] state;                   // シフトレジスタ（S1, S0）
-reg [5:0] bit_counter;             // ビットカウンタ（0～31）
+reg [5:0] bit_counter;             // ビットカウンタ（0～32）
 reg [63:0] encoded_data;           // 出力バッファ
 reg encoding;                      // 符号化中フラグ
 
@@ -40,6 +41,7 @@ always @(posedge CLK or negedge POR) begin
         encoded_data <= 64'b0;
         encoding <= 1'b0;
         DATA_OUT <= 64'b0;
+        ENCODE_DONE <= 1'b0;
     end
     else if (START && !encoding) begin
         // 符号化開始
@@ -47,28 +49,29 @@ always @(posedge CLK or negedge POR) begin
         bit_counter <= 6'd0;
         encoded_data <= 64'b0;
         encoding <= 1'b1;
+        ENCODE_DONE <= 1'b0;
     end
     else if (encoding) begin
-        // 符号化処理
-        // 出力ビット格納（c0を先に、次にc1）LSBファースト
-        // ブロッキング代入で即座に反映
-        encoded_data[(bit_counter * 2)] = c0;
-        encoded_data[(bit_counter * 2 + 1)] = c1;
+        if (bit_counter <= 6'd31) begin
+            // 符号化処理（bit 0～31）
+            // 出力ビット格納（c0を先に、次にc1）LSBファースト
+            // ノンブロッキング代入に変更
+            encoded_data[(bit_counter * 2)] <= c0;
+            encoded_data[(bit_counter * 2 + 1)] <= c1;
 
-        // 状態更新（シフトレジスタ）
-        // 次の計算用にstateの状態をシフトしている
-        state <= {state[0], input_bit};
+            // 状態更新（シフトレジスタ）
+            // 次の計算用にstateの状態をシフトしている
+            state <= {state[0], input_bit};
 
-
-        // カウンタ更新
-        if (bit_counter == 6'd31) begin
-            // 符号化完了（ブロッキング代入により最新のencoded_dataが見える）
+            // カウンタ更新
+            bit_counter <= bit_counter + 1;
+        end
+        else if (bit_counter == 6'd32) begin
+            // 符号化完了（encoded_dataが確定）
             DATA_OUT <= encoded_data;
+            ENCODE_DONE <= 1'b1;
             encoding <= 1'b0;
             bit_counter <= 6'd0;
-        end
-        else begin
-            bit_counter <= bit_counter + 1;
         end
     end
 end

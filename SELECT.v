@@ -93,8 +93,8 @@ always@(posedge CLK or negedge POR)begin
               else
                 state <= none;
             counter:
-              // 32クロックのスタートカウント完了後
-              if((ENABLE == 1'b1) && (comcon_out >= 8'd33)) begin
+              // 32クロックのスタートカウント完了後（+1クロック遅延）
+              if((ENABLE == 1'b1) && (comcon_out >= 8'd34)) begin
                 if(ENCODE_ENABLE)
                   state <= encode;     // 符号化ON: encodeへ
                 else
@@ -121,16 +121,16 @@ always@(posedge CLK or negedge POR)begin
                 state <= shift;
             // 符号化ON時のパス
             encode:
-              // 64bitシフト完了後
-              if((ENABLE == 1'b1) && (comcon_out >= 8'd97))
+              // 64bitシフト完了後（+1クロック遅延）
+              if((ENABLE == 1'b1) && (comcon_out >= 8'd98))
                 state <= stop;
               else
                 state <= encode;
             // 共通パス
             stop:
-              // 符号化ON時は100、OFF時は66で終了
+              // 符号化ON時は101、OFF時は66で終了（+1クロック遅延）
               if(ENCODE_ENABLE) begin
-                if((ENABLE == 1'b1) && (comcon_out >= 8'd100))
+                if((ENABLE == 1'b1) && (comcon_out >= 8'd101))
                   state <= fin;
                 else
                   state <= stop;

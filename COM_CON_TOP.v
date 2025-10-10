@@ -26,13 +26,15 @@ wire [2:0] state_comcon;
 wire [31:0] encoder_input;
 wire [63:0] encoder_output;
 wire encoder_start;
+wire encode_done;
 wire [63:0] output_data;
 
 // 符号化入力データの準備（ADDRESS, TYPE, DATA + 終端2bit）
 assign encoder_input = {ADDRESS[7:0], TYPE[1:0], DATA[19:0], 2'b00};
 
 // 符号化開始信号（counter状態でENCODE_ENABLEがアクティブな時）
-// stateがdelayの時にencoderがstartになる。
+// stateがcounterの時にencoderがstartになる。
+// ENCODE_ENABLEは外部信号
 assign encoder_start = (state_comcon == 3'b001) && ENCODE_ENABLE;
 
 // 畳み込み符号化器
@@ -41,12 +43,12 @@ CONV_ENCODER CONV_ENCODER(
     .POR(POR),
     .START(encoder_start),
     .DATA_IN(encoder_input),
-    .DATA_OUT(encoder_output)
+    .DATA_OUT(encoder_output),
+    .ENCODE_DONE(encode_done)
 );
 
 // データセレクタ（符号化ON/OFFでデータを選択）
 // 符号化OFF時: DATAの20bitのみ（ADDRESSとTYPEはSELECT.vで別途シリアル化）
-// TODO そもそもencode_enableの時は符号化自体しない構成にした方がいいのでは
 assign output_data = ENCODE_ENABLE ? encoder_output : {44'b0, DATA[19:0]};
 
 COM_ENABLE COM_ENABLE(
@@ -78,6 +80,7 @@ SHIFT_REG SHIFT_REG(
 .state(state_comcon),
 .DATA(output_data),                 // 64bitデータ（符号化ON/OFFで選択済み）
 .ENCODE_ENABLE(ENCODE_ENABLE),
+.ENCODE_DONE(encode_done),
 .S_OUT(S_OUT)
 );
 
