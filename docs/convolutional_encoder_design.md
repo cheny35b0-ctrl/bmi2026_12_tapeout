@@ -29,13 +29,13 @@
 **合計**: 32bit入力 → 64bit出力
 
 ### 2.3 制御方式
-- **制御信号**: `command[18]`
+- **制御信号**: `command[343]`
   - `1'b1`: 符号化有効
   - `1'b0`: 符号化無効（スルーモード）
 - FPGAから事前にコマンド送信により設定
 
 **重要な制約:**
-- `ENCODE_ENABLE`（`command[18]`）は**フレーム送出開始時にラッチ**され、フレーム送信中は固定される
+- `ENCODE_ENABLE`（`command[343]`）は**フレーム送出開始時にラッチ**され、フレーム送信中は固定される
 - フレーム途中での変更は不整合を引き起こすため禁止
 - 実装方法: `ENABLE`信号の立ち上がり時点で`ENCODE_ENABLE`の値をレジスタに保持し、次の`ENABLE`立ち上がりまで変更不可とする
 
@@ -109,7 +109,7 @@ c1[k] = d[k] ⊕ S1
 | ストップ | 3bit | 65 |
 | 終了 | - | 66+ |
 
-**合計伝送時間**: 約66 CLK50サイクル
+**合計伝送時間**: 約66 CLK5サイクル
 
 ### 4.2 新プロトコル（符号化あり）
 
@@ -120,7 +120,7 @@ c1[k] = d[k] ⊕ S1
 | ストップ | 3bit | 99 |
 | 終了 | - | 100+ |
 
-**合計伝送時間**: 約100 CLK50サイクル（+34サイクル増加）
+**合計伝送時間**: 約100 CLK5サイクル（+34サイクル増加）
 
 ## 5. モジュール設計
 
@@ -159,7 +159,7 @@ c1[k] = d[k] ⊕ S1
 
 **入力**:
 - `CLK`, `POR`
-- `ENCODE_ENABLE`: `command[18]`
+- `ENCODE_ENABLE`: `command[343]`
 - `ADDRESS[7:0]`, `TYPE[1:0]`, `DATA[19:0]`
 - `ENCODED_DATA[63:0]`: 符号化後データ
 
@@ -200,7 +200,7 @@ stop:     comcon_out >= 8'd100 // +34bit
 ```
 
 **追加入力**:
-- `ENCODE_ENABLE`: `command[18]`
+- `ENCODE_ENABLE`: `command[343]`
 - `ENCODED_DATA[63:0]`: 符号化後データ
 
 **状態の追加/変更**:
@@ -243,7 +243,7 @@ reg [63:0] shift_reg;  // 64bitシフトレジスタ
   - 注意: 64bitレジスタ幅のうち30bitしか使用しないが、これは仕様上問題なし
   - 30bitシフト完了後は`shift_reg = 64'b0`となる
 - **符号化ON時**: `DATA[63:0]`全体をロード（64bit全てを使用）
-- 毎`CLK50`で1bitシフト動作（`shift_reg >>= 1`）
+- 毎`CLK5`で1bitシフト動作（`shift_reg >>= 1`）
 - `S_OUT`は常に`shift_reg[0]`を出力
 
 **設計判断**:
@@ -261,8 +261,8 @@ wire [63:0] encoder_output;
 wire [63:0] output_data;
 
 // 符号化イネーブル（外部から設定済みと仮定）
-// 実際にはTOPモジュールでcommand[18]を渡す
-assign ENCODE_ENABLE = /* command[18] from TOP */;
+// 実際にはTOPモジュールでcommand[343]を渡す
+assign ENCODE_ENABLE = /* command[343] from TOP */;
 
 // 符号化入力データの準備
 assign encoder_input = {ADDRESS[7:0], TYPE[1:0], DATA[19:0], 2'b00};
@@ -271,7 +271,7 @@ assign encoder_input = {ADDRESS[7:0], TYPE[1:0], DATA[19:0], 2'b00};
 CONV_ENCODER CONV_ENCODER(
     .CLK(CLK),
     .POR(POR),
-    .START(state_comcon == counter && CLK50),
+    .START(state_comcon == counter && CLK5),
     .DATA_IN(encoder_input),
     .DATA_OUT(encoder_output),
     .DONE()
@@ -291,7 +291,7 @@ ENCODER_CONTROL ENCODER_CONTROL(
 // SHIFT_REGへの接続
 SHIFT_REG SHIFT_REG(
     .CLK(CLK),
-    .CLK50(CLK50),
+    .CLK5(CLK5),
     .POR(POR),
     .ADC_STATE(ADC_STATE),
     .ENABLE(ENABLE),
@@ -306,7 +306,7 @@ SHIFT_REG SHIFT_REG(
 
 ### 6.1 符号化OFF時（現行と同じ）
 ```
-CLK50    : _/‾\_/‾\_/‾\_/‾\_/‾\_/‾\_/‾\...
+CLK5    : _/‾\_/‾\_/‾\_/‾\_/‾\_/‾\_/‾\...
 state    : counter|address|type|shift        |stop|fin
 comcon   : 33     |41     |43  |63           |66  |
 OUT      : C_OUT1 |ADDRESS|TYPE|DATA(20bit)  |1   |0
@@ -314,7 +314,7 @@ OUT      : C_OUT1 |ADDRESS|TYPE|DATA(20bit)  |1   |0
 
 ### 6.2 符号化ON時
 ```
-CLK50    : _/‾\_/‾\_/‾\_/‾\_/‾\_/‾\_/‾\...
+CLK5    : _/‾\_/‾\_/‾\_/‾\_/‾\_/‾\_/‾\...
 state    : counter|encode(64bit)             |stop|fin
 comcon   : 33     |97                        |100 |
 OUT      : C_OUT1 |ENCODED_DATA(64bit)       |1   |0
@@ -462,7 +462,7 @@ OUT      : C_OUT1 |ENCODED_DATA(64bit)       |1   |0
 - **推奨2**: 符号化ON/OFFで異なるプリアンブルパターンを使用
   - 受信側がプリアンブルを検出してモードを判別
 - **推奨3**: 固定的に符号化ONで運用（最もシンプル）
-  - デバッグ時のみ`command[18]=0`で符号化OFFを使用
+  - デバッグ時のみ`command[343]=0`で符号化OFFを使用
 
 ### 10.6 comcon_outカウンタの閾値オフバイワン
 **リスク**: 状態遷移タイミングが1サイクルずれる可能性
