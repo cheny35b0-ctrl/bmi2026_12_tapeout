@@ -14,11 +14,11 @@ assign ADDRESS [7:0] = 8'b1000_0001;
 assign TYPE = 1'b1; 
 assign S_OUT = 1'b0;
 
-wire [3:0] cnt4;
-assign CLK25 = (cnt4 == 4'd3);
-counter_4bit CLK25_divider(.CLK(CLK),.POR(POR),.RST(ADC_state),.COUNT_UP(1'b1),.PERIOD(4'd4),.COUNT(cnt4));
+wire [3:0] cnt2;
+assign CLK5 = (cnt2 == 4'd1);
+counter_4bit CLK5_divider(.CLK(CLK),.POR(POR),.RST(ADC_state),.COUNT_UP(1'b1),.PERIOD(4'd2),.COUNT(cnt2));
 
-SELECT SELECT(.CLK(CLK),.CLK25(CLK25),.POR(POR),.ADC_state(ADC_state),.C_OUT1(C_OUT1),.P_ADDRESS(P_ADDRESS),.S_ADDRESS(S_ADDRESS),
+SELECT SELECT(.CLK(CLK),.CLK5(CLK5),.POR(POR),.ADC_state(ADC_state),.C_OUT1(C_OUT1),.P_ADDRESS(P_ADDRESS),.S_ADDRESS(S_ADDRESS),
               .S_OUT(S_OUT),.TYPE(TYPE),.ENABLE(ENABLE),.ADDRESS(ADDRESS),.OUT(OUT),.state(state),.comcon_out(comcon_out));
 
 
