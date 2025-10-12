@@ -5,7 +5,7 @@ module COM_ENABLE(
      input OPERATE, 
      input [9:0] def_delay,
      output reg ENABLE,
-     outputCLK5
+     output CLK5
      //output reg [2:0] state
 
 );
@@ -109,7 +109,7 @@ end
 
 //CLK50 generation
 wire [3:0] cnt2;
-assignCLK5 = (cnt2 == 4'd1;
-counter_4bitCLK5_divider(.CLK(CLK),.POR(POR),.RST(!state_EN),.COUNT_UP((OPERATE==1'b1)&&(ADC_state==1'b0)),.PERIOD(4'd2),.COUNT(cnt2));
+assign CLK5 = (cnt2 == 4'd1);
+counter_4bit CLK5_divider(.CLK(CLK),.POR(POR),.RST(!state_EN),.COUNT_UP((OPERATE==1'b1)&&(ADC_state==1'b0)),.PERIOD(4'd2),.COUNT(cnt2));
 
 endmodule
