@@ -14,7 +14,7 @@ wire [7:0] comcon_out;
 localparam none = 3'b000, counter = 3'b001, address = 3'b010 ,type = 3'b011, shift = 3'b100,  stop = 3'b101, fin = 3'b110;
 
 counter_8bit COMCON_OUT(
-.CLK(CLK50),
+.CLK(CLK5),
 .POR(POR),
 .RST(!ENABLE),
 .COUNT_UP(ENABLE),
@@ -32,7 +32,7 @@ always@(posedge CLK or negedge POR)begin
       P_ADDRESS <= 8'b0;
     else if(state == counter)
       P_ADDRESS[7:0] <= ADDRESS[7:0];
-    else if((state == address) && (CLK50 == 1'b1))
+    else if((state == address) && (CLK5 == 1'b1))
       P_ADDRESS <= P_ADDRESS >>1;
     else
       P_ADDRESS <= P_ADDRESS;
@@ -58,7 +58,7 @@ always@(posedge CLK or negedge POR)begin
       P_TYPE <= 2'b0;
     else if(state == address)
       P_TYPE[1:0] <= TYPE[1:0];
-    else if((state == type) && (CLK50 == 1'b1))
+    else if((state == type) && (CLK5 == 1'b1))
       P_TYPE <= P_TYPE >>1;
     else
       P_TYPE <= P_TYPE;
@@ -132,7 +132,7 @@ always@(posedge CLK or negedge POR)begin
            OUT <= 1'b0;
        else if (state == none)
            OUT <= 1'b0;
-       else if(CLK50 == 1'b1)
+       else if(CLK5 == 1'b1)
            if(state == counter)
            OUT <= C_OUT1;
            else if(state == shift)

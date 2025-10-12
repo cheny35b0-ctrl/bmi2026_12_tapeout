@@ -22,7 +22,7 @@ always@(posedge CLK or negedge POR)begin
       shift_reg <= 21'b0;
     else if(state == type)
       shift_reg <= {DATA[19:0],1'b0};
-    else if((CLK50 == 1'b1) && (state == shift))
+    else if((CLK5 == 1'b1) && (state == shift))
       shift_reg <= shift_reg >>1;
     else
       shift_reg <= shift_reg;
