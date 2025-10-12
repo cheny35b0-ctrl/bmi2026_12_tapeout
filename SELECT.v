@@ -2,7 +2,7 @@
 
 
 module SELECT (
-    input CLK, CLK50, POR, ADC_STATE, C_OUT1, S_OUT, ENABLE,
+    input CLK, CLK5, POR, ADC_STATE, C_OUT1, S_OUT, ENABLE,
     input [1:0] TYPE,
     input [7:0] ADDRESS,
     input ENCODE_ENABLE,           // 符号化ON/OFFフラグ
@@ -158,7 +158,7 @@ always@(posedge CLK or negedge POR)begin
            OUT <= 1'b0;
        else if (state == none)
            OUT <= 1'b0;
-       else if(CLK50 == 1'b1)
+       else if (CLK5 == 1'b1)
            if(state == counter)
               OUT <= C_OUT1;
            else if(state == shift)
