@@ -4,7 +4,7 @@ module COM_ENABLE(
      input [3:0] DELAY,
      input [1:0] OPERATE,
      output reg ENABLE,
-     outputCLK5
+     output CLK5
      //output reg [2:0] state
 
 );
