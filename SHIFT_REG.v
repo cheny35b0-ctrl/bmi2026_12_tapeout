@@ -2,7 +2,7 @@
 
 
 module SHIFT_REG (
-    input CLK, ADC_STATE, POR, CLK50, ENABLE,
+    input CLK, ADC_STATE, POR,CLK5, ENABLE,
     input [2:0] state,
     input [19:0] DATA,
     output reg S_OUT

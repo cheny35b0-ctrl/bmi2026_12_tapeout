@@ -2,7 +2,7 @@
 
 
 module SELECT (
-    input CLK, CLK50, POR, ADC_STATE, C_OUT1, S_OUT, ENABLE,
+    input CLK,CLK5, POR, ADC_STATE, C_OUT1, S_OUT, ENABLE,
     input [1:0] TYPE,
     input [7:0] ADDRESS,
     output reg OUT,
