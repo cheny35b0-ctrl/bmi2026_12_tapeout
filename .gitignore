@@ -1,0 +1,34 @@
+# Simulation files
+*.vcd
+*.vvp
+*.wlf
+*.vstf
+
+# Backup files
+*.bak
+*~
+
+# ModelSim files
+*.mpf
+*.mti
+work/
+transcript
+
+# GTKWave files
+*.gtkw
+
+# Mac OS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Compiled files
+*.o
+*.so
+*.a
+
+# Log files
+*.log
