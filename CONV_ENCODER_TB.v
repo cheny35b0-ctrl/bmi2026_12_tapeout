@@ -10,6 +10,9 @@ parameter clock = 100;  // 100nsクロック周期（10MHz）
 parameter delay = 0;
 
 // テスト信号
+// 入力 : reg
+// 出力 : wire
+// OK
 reg CLK;
 reg POR;
 reg START;
@@ -28,6 +31,7 @@ CONV_ENCODER uut (
 );
 
 // クロック生成（100ns周期 = 10MHz）
+// OK
 always begin
     CLK = 1'b1;
     #50 CLK = 1'b0;
@@ -58,7 +62,6 @@ initial begin
 
     // 符号化完了待ち
     @(posedge ENCODE_DONE);
-    #(2*clock);
     $display("[%0t ns] Test Case 1 Result: DATA_OUT = 0x%016h", $time, DATA_OUT);
 
     // テストケース2: 全ビット1の入力
@@ -70,7 +73,6 @@ initial begin
     @(posedge CLK) #delay START = 1'b0;
 
     @(posedge ENCODE_DONE);
-    #(2*clock);
     $display("[%0t ns] Test Case 2 Result: DATA_OUT = 0x%016h", $time, DATA_OUT);
 
     // テストケース3: 交互パターン（10101010...）
@@ -82,7 +84,6 @@ initial begin
     @(posedge CLK) #delay START = 1'b0;
 
     @(posedge ENCODE_DONE);
-    #(2*clock);
     $display("[%0t ns] Test Case 3 Result: DATA_OUT = 0x%016h", $time, DATA_OUT);
 
     // テストケース4: 交互パターン（01010101...）
@@ -94,7 +95,6 @@ initial begin
     @(posedge CLK) #delay START = 1'b0;
 
     @(posedge ENCODE_DONE);
-    #(2*clock);
     $display("[%0t ns] Test Case 4 Result: DATA_OUT = 0x%016h", $time, DATA_OUT);
 
     // テストケース5: アドレスパターン（例：デバイスアドレス0x00 + データ）
@@ -106,7 +106,6 @@ initial begin
     @(posedge CLK) #delay START = 1'b0;
 
     @(posedge ENCODE_DONE);
-    #(2*clock);
     $display("[%0t ns] Test Case 5 Result: DATA_OUT = 0x%016h", $time, DATA_OUT);
 
     // テストケース6: ランダムパターン1
@@ -118,7 +117,6 @@ initial begin
     @(posedge CLK) #delay START = 1'b0;
 
     @(posedge ENCODE_DONE);
-    #(2*clock);
     $display("[%0t ns] Test Case 6 Result: DATA_OUT = 0x%016h", $time, DATA_OUT);
 
     // テストケース7: ランダムパターン2
@@ -130,7 +128,6 @@ initial begin
     @(posedge CLK) #delay START = 1'b0;
 
     @(posedge ENCODE_DONE);
-    #(2*clock);
     $display("[%0t ns] Test Case 7 Result: DATA_OUT = 0x%016h", $time, DATA_OUT);
 
     // テスト終了
