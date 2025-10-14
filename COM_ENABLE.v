@@ -107,7 +107,7 @@ always@(posedge CLK or negedge POR)begin
          ENABLE <= 1'b0;
 end
 
-//CLK50 generation
+//CLK5 generation
 wire [3:0] cnt2;
 assign CLK5 = (cnt2 == 4'd1);
 counter_4bit CLK5_divider(.CLK(CLK),.POR(POR),.RST(!state_EN),.COUNT_UP((OPERATE==1'b1)&&(ADC_state==1'b0)),.PERIOD(4'd2),.COUNT(cnt2));

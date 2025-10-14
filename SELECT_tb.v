@@ -4,8 +4,7 @@ module SELECT_tb;
 reg CLK,ADC_state,POR,ENABLE;
 wire C_OUT1,S_OUT,TYPE;
 wire [7:0] ADDRESS;
-wire [7:0] P_ADDRESS;
-wire S_ADDRESS,OUT;
+wire OUT;
 wire [2:0] state;
 wire [7:0] comcon_out;
 
@@ -18,7 +17,7 @@ wire [3:0] cnt2;
 assign CLK5 = (cnt2 == 4'd1);
 counter_4bit CLK5_divider(.CLK(CLK),.POR(POR),.RST(ADC_state),.COUNT_UP(1'b1),.PERIOD(4'd2),.COUNT(cnt2));
 
-SELECT SELECT(.CLK(CLK),.CLK5(CLK5),.POR(POR),.ADC_state(ADC_state),.C_OUT1(C_OUT1),.P_ADDRESS(P_ADDRESS),.S_ADDRESS(S_ADDRESS),
+SELECT SELECT(.CLK(CLK),.CLK5(CLK5),.POR(POR),.ADC_state(ADC_state),.C_OUT1(C_OUT1),
               .S_OUT(S_OUT),.TYPE(TYPE),.ENABLE(ENABLE),.ADDRESS(ADDRESS),.OUT(OUT),.state(state),.comcon_out(comcon_out));
 
 
