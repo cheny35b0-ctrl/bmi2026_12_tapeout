@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(iverilog:*)",
+      "Bash(vvp:*)"
     ],
     "deny": [],
     "ask": []

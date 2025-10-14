@@ -44,4 +44,12 @@ initial fork
 #450000 ADC_state = 1'b1;
 join
 
+initial begin
+    $dumpfile("SELECT_tb.vcd");
+    $dumpvars(0, SELECT_tb);
+    // テストの内容
+    #500000;  // 適切な時間待つ
+    $finish;  // シミュレーション終了
+end
+
 endmodule
