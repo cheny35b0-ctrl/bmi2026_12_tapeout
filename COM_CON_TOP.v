@@ -1,50 +1,53 @@
 //COM_CON_TOP for multi device + new 10bit ADC
 
 module COM_CON_TOP (
-    input CLK, POR, ADC_state,TYPE,OPERATE,
+    input CLK, POR, S_Bias_OPT, S_Bias_ELE,
+    input [1:0] OPERATE, TYPE,
     input [7:0] ADDRESS,
-    input [9:0] DATA,
-    input [9:0] def_delay,
-    output OUT,ENABLE
+    input [19:0] DATA,
+    output OUT, ENABLE
 );
 
-// ?????????
-// ???????reg?????
-wire C_OUT1, S_OUT, S_ADDRESS,CLK5;
+// ADC_STATE synchronization
+reg ADC_STATE;
+
+always @(posedge CLK or negedge POR) begin
+    if (!POR)
+        ADC_STATE <= 1'b0;
+    else
+        ADC_STATE <= S_Bias_OPT || S_Bias_ELE;
+end
+
+wire C_OUT1, S_OUT, S_ADDRESS, CLK5;
 wire [2:0] state_comcon;
 
-//??????(delay ??)
 COM_ENABLE COM_ENABLE(
 .CLK(CLK),.POR(POR),
-.ADC_state(ADC_state),
+.ADC_STATE(ADC_STATE),
 .DELAY(ADDRESS[3:0]),
 .OPERATE(OPERATE),
-.def_delay(def_delay[9:0]),
 .CLK5(CLK5),
 .ENABLE(ENABLE)
 );
 
 
-// ??????????
 COUNTER_COMCON COUNTER_COMCON(
 .CLK(CLK),
 .CLK5(CLK5),
 .POR(POR),
-.ADC_state(ADC_state),
-.ENABLE(ENABLE),
+.ADC_STATE(ADC_STATE),
 .state(state_comcon),
 .C_OUT1(C_OUT1)
 );
 
-// ????????
 SHIFT_REG SHIFT_REG(
 .CLK(CLK),
 .CLK5(CLK5),
 .POR(POR),
-.ADC_state(ADC_state),
+.ADC_STATE(ADC_STATE),
 .ENABLE(ENABLE),
 .state(state_comcon),
-.DATA(DATA[9:0]),
+.DATA(DATA[19:0]),
 .S_OUT(S_OUT)
 );
 
@@ -53,7 +56,7 @@ SELECT SELECT(
 .CLK(CLK),
 .CLK5(CLK5),
 .POR(POR),
-.ADC_state(ADC_state),
+.ADC_STATE(ADC_STATE),
 .ENABLE(ENABLE),
 .state(state_comcon),
 .TYPE(TYPE),

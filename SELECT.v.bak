@@ -2,7 +2,7 @@
 
 
 module SELECT (
-    input CLK,CLK5, POR, ADC_state, C_OUT1, S_OUT, TYPE, ENABLE,
+    input CLK, CLK5, POR, ADC_STATE, C_OUT1, S_OUT, TYPE, ENABLE,
     input [7:0] ADDRESS,
     output reg OUT,
     output reg [2:0] state,
@@ -52,7 +52,7 @@ end
 always@(posedge CLK or negedge POR)begin
        if (POR == 1'b0)
           state <= none;
-       else if(ADC_state == 1'b1)
+       else if(ADC_STATE == 1'b1)
           state <= none;
        else if(ENABLE == 1'b0)
           state <= none;

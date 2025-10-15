@@ -127,8 +127,6 @@ ELE_STIM_XOR ELE_STIM_XOR(
 .P_STIM_EN_XOR(P_STIM_EN),
 .N_STIM_EN_XOR(N_STIM_EN)
 );
-		 
-
 
 //optical stimulation
 STIM   OPTICAL_STIM(
