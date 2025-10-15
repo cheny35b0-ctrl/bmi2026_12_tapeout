@@ -9,7 +9,7 @@ wire [2:0] state;
 wire [7:0] comcon_out;
 
 assign C_OUT1 = 1'b1;
-assign ADDRESS [7:0] = 8'b1000_0001;
+assign ADDRESS [7:0] = 8'b0100_0001;
 assign TYPE = 1'b1; 
 assign S_OUT = 1'b0;
 
