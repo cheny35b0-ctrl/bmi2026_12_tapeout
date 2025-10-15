@@ -32,7 +32,7 @@ always@(posedge CLK or negedge POR)begin
       P_ADDRESS <= 8'b0;
     else if(state == counter)
       P_ADDRESS[7:0] <= ADDRESS[7:0];
-    else if((state == address) && (CLK5 == 1'b1))
+    else if((state == address) && (CLK5 == 1'b0))
       P_ADDRESS <= P_ADDRESS >>1;
     else
       P_ADDRESS <= P_ADDRESS;
@@ -41,9 +41,7 @@ end
 always@(posedge CLK or negedge POR)begin
     if(!POR)
       S_ADDRESS <= 1'b0;
-    else if(state == counter)
-      S_ADDRESS <= 1'b0;
-    else if(state == address)
+    else if((state == counter) || (state == address))
       S_ADDRESS <= P_ADDRESS[0];
     else
       S_ADDRESS <= S_ADDRESS;
@@ -67,9 +65,7 @@ end
 always@(posedge CLK or negedge POR)begin
     if(!POR)
       S_TYPE <= 1'b0;
-    else if(state == address)
-      S_TYPE <= 1'b0;
-    else if(state == type)
+    else if((state == counter) || (state == address))
       S_TYPE <= P_TYPE[0];
     else
       S_TYPE <= S_TYPE;
@@ -91,27 +87,27 @@ always@(posedge CLK or negedge POR)begin
               else
                 state <= none;
             counter:
-              if((ENABLE == 1'b1) && (comcon_out >= 8'd33))
+              if((ENABLE == 1'b1) && (comcon_out >= 8'd34))
                 state <= address;
               else
                 state <= counter;
             address:
-              if((ENABLE == 1'b1) && (comcon_out >= 8'd41))
+              if((ENABLE == 1'b1) && (comcon_out >= 8'd42))
                 state <= type;
               else
                 state <= address;
             type:
-              if((ENABLE == 1'b1) && (comcon_out >= 8'd43))
+              if((ENABLE == 1'b1) && (comcon_out >= 8'd44))
                 state <= shift;
               else
                 state <= type;
             shift:
-              if((ENABLE == 1'b1) && (comcon_out >= 8'd63))
+              if((ENABLE == 1'b1) && (comcon_out >= 8'd64))
                 state <= stop;
               else
                 state <= shift;
             stop:
-              if((ENABLE == 1'b1) && (comcon_out >= 8'd66))
+              if((ENABLE == 1'b1) && (comcon_out >= 8'd67))
                 state <= fin;
               else
                 state <= stop;
@@ -120,7 +116,8 @@ always@(posedge CLK or negedge POR)begin
                 state <= none;
               else
                 state <= fin;
-           default: state <= none;
+           default:
+                state <= none;
          endcase
 end
 
@@ -132,21 +129,21 @@ always@(posedge CLK or negedge POR)begin
            OUT <= 1'b0;
        else if (state == none)
            OUT <= 1'b0;
-       else if(CLK5 == 1'b1)
+       else if(CLK5 == 1'b0)
            if(state == counter)
-           OUT <= C_OUT1;
+              OUT <= C_OUT1;
            else if(state == shift)
-           OUT <= S_OUT;
+              OUT <= S_OUT;
            else if(state == address)
-           OUT <= S_ADDRESS;
+              OUT <= S_ADDRESS;
            else if(state == type)
-           OUT <= S_TYPE;
+              OUT <= S_TYPE;
            else if(state == stop)
-           OUT <= 1'b1;
+              OUT <= 1'b1;
            else if(state == fin)
-           OUT <= 1'b0;
+              OUT <= 1'b0;
            else
-           OUT <= OUT;
+              OUT <= OUT;
        else
            OUT <= OUT;
 

@@ -11,26 +11,30 @@ module SHIFT_REG (
 
 localparam none = 3'b000, counter = 3'b001, address = 3'b010, type = 3'b011, shift = 3'b100, stop = 3'b101, fin = 3'b110;
 
-reg [20:0] shift_reg;
+//data para to seri
+reg [19:0] P_DATA;
 
-
-//shift_reg
 always@(posedge CLK or negedge POR)begin
     if(!POR)
-      shift_reg <= 21'b0;
+      P_DATA <= 20'b0;
     else if(!ENABLE)
-      shift_reg <= 21'b0;
+      P_DATA <= 20'b0;
     else if(state == type)
-      shift_reg <= {DATA[19:0],1'b0};
-    else if((CLK5 == 1'b1) && (state == shift))
-      shift_reg <= shift_reg >>1;
+      P_DATA[19:0] <= DATA[19:0];
+    else if((state == shift) && (CLK5 == 1'b1))
+      P_DATA <= P_DATA >>1;
     else
-      shift_reg <= shift_reg;
+      P_DATA <= P_DATA;
 end
+
 always@(posedge CLK or negedge POR)begin
-    if(!POR) 
-     S_OUT <= 1'b0;
+    if(!POR)
+      S_OUT <= 1'b0;
+    else if(!ENABLE)
+      S_OUT <= 1'b0;
+    else if((state == type) || (state == shift))
+      S_OUT <= P_DATA[0];
     else
-     S_OUT <= shift_reg[0];
+      S_OUT <= S_OUT;
 end
 endmodule
