@@ -2,7 +2,7 @@
 
 
 module SHIFT_REG (
-    input CLK, ADC_state, POR, CLK25, ENABLE,
+    input CLK, ADC_state, POR,CLK5, ENABLE,
     input [2:0] state,
     input [9:0] DATA,
     output reg S_OUT
@@ -20,7 +20,7 @@ always@(posedge CLK or negedge POR)begin
       shift_reg <= 11'b0;
     else if(state != 3'b100)
       shift_reg <= {DATA[9:0],1'b0};
-    else if((CLK25 == 1'b1) && (state == 3'b100))
+    else if((CLK5 == 1'b1) && (state == 3'b100))
       shift_reg <= shift_reg >>1;
     else
       shift_reg <= shift_reg;
