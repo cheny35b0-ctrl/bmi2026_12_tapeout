@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(gh pr create --title \"クロックの分周比を2に変更して50 MHzのクロックを生成\" --body \"$(cat <<''EOF''\n## 概要\nクロックの分周比を4から2に変更し、25 MHzから50 MHzのクロックを生成するように修正しました。\n\n## 変更内容\n- `CLK25`を`CLK5`に名称変更\n- 分周比を4から2に変更（`PERIOD`を`4''d4`から`4''d2`に変更）\n- カウンタの比較値を`4''d3`から`4''d1`に変更\n- 関連する全てのモジュールで信号名を更新\n\n## 影響を受けるファイル\n- COM_CON_TOP.v\n- COM_ENABLE.v\n- COUNTER_COMCON.v\n- SELECT.v\n- SHIFT_REG.v\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\nEOF\n)\")"
+      "Bash(gh pr create --title \"クロックの分周比を2に変更して50 MHzのクロックを生成\" --body \"$(cat <<''EOF''\n## 概要\nクロックの分周比を4から2に変更し、25 MHzから50 MHzのクロックを生成するように修正しました。\n\n## 変更内容\n- `CLK25`を`CLK5`に名称変更\n- 分周比を4から2に変更（`PERIOD`を`4''d4`から`4''d2`に変更）\n- カウンタの比較値を`4''d3`から`4''d1`に変更\n- 関連する全てのモジュールで信号名を更新\n\n## 影響を受けるファイル\n- COM_CON_TOP.v\n- COM_ENABLE.v\n- COUNTER_COMCON.v\n- SELECT.v\n- SHIFT_REG.v\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\nEOF\n)\")",
+      "Bash(iverilog:*)",
+      "Bash(vvp:*)"
     ],
     "deny": [],
     "ask": []
