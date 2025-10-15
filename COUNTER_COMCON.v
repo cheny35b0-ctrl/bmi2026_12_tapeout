@@ -10,9 +10,11 @@ always@(posedge CLK or negedge POR)begin
          if (!POR)
            C_OUT1 <= 1'b0;
          else if (state == 3'b001)
-           C_OUT1 <= !CLK5;
-         else
+           C_OUT1 <= !C_OUT1;  // トグル動作
+         else if (state != 3'b001)
            C_OUT1 <= 1'b0;
+         else
+           C_OUT1 <= C_OUT1;
 end
 
 
