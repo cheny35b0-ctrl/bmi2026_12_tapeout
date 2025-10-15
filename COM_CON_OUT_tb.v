@@ -11,7 +11,7 @@ wire COM_EN_OPT, COM_EN_ELE;
 
 assign OPERATE_OPT = 1'b1;
 assign OPERATE_ELE = 1'b1;
-assign ADDRESS [7:0] = 8'b0000_0010;
+assign ADDRESS [7:0] = 8'b1111_0011;
 assign DATA_OPT[11:0] = 10'b0110_0101_11;
 assign DATA_ELE[11:0] = 10'b1001_1010_00;
 
