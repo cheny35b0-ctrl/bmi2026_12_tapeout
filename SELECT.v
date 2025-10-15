@@ -133,7 +133,7 @@ always@(posedge CLK or negedge POR)begin
            OUT <= 1'b0;
        else if (state == none)
            OUT <= 1'b0;
-       else if(CLK5 == 1'b0)
+       else if(CLK5 == 1'b1)
            if(state == counter)
               OUT <= C_OUT1;
            else if(state == shift)
