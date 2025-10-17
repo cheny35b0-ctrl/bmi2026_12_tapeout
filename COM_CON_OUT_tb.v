@@ -3,7 +3,7 @@
 module COM_CON_OUT_tb;
 reg CLK, POR, S_Bias_OPT,S_Bias_ELE;
 wire OPERATE_OPT,OPERATE_ELE;
-wire [7:0] ADDRESS;
+reg [7:0] ADDRESS;
 wire [11:0] DATA_OPT,DATA_ELE;
 wire OUT;
 wire COM_EN_OPT, COM_EN_ELE;
@@ -11,7 +11,6 @@ wire COM_EN_OPT, COM_EN_ELE;
 
 assign OPERATE_OPT = 1'b1;
 assign OPERATE_ELE = 1'b1;
-assign ADDRESS [7:0] = 8'b1111_0011;
 assign DATA_OPT[11:0] = 10'b0110_0101_11;
 assign DATA_ELE[11:0] = 10'b1001_1010_01;
 
@@ -52,6 +51,17 @@ initial fork
 #920000  S_Bias_ELE = 1'b1;
 #1000000 S_Bias_ELE = 1'b0;
 #1920000 S_Bias_ELE = 1'b1;
+join
+
+initial begin
+    ADDRESS = 8'b0000_0000;
+end
+
+initial fork
+         ADDRESS = 8'h00;
+#500000  ADDRESS = 8'h20;
+#1000000 ADDRESS = 8'h40;
+#1500000 ADDRESS = 8'hF3;
 join
 
 initial begin

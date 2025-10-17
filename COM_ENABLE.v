@@ -21,29 +21,12 @@ counter_16bit EN_LAST(.CLK(CLK),.POR(POR),.RST(!state_EN),.COUNT_UP(ENABLE),.PER
 
 reg [2:0] state;
 wire [7:0] address_delay;
-reg ADC_delay, ADC_edge;
 
-always@(posedge CLK or negedge POR) begin
-    if(!POR) begin
-       ADC_edge <= 1'b0;
-       ADC_delay <= 1'b0;
-       end
-    else begin
-       ADC_edge <= !ADC_STATE && ADC_delay;
-       ADC_delay <= ADC_STATE;
-      end
-end      
-
-// クロックの立ち上がりエッジまたはリセットの立ち下がりエッジで動作
-// TODO 同じ条件だからまとめる。
 always@(posedge CLK or negedge POR) begin
    if(!POR)
     state_EN <= 1'b0;
    else if(!ADC_STATE)
-     if(ADC_edge)
         state_EN <= 1'b1;
-     else
-        state_EN <= state_EN;
    else
      state_EN <= 1'b0;
 end
