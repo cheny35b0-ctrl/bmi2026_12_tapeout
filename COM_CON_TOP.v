@@ -30,7 +30,12 @@ wire encode_done;
 wire [63:0] output_data;
 
 // 符号化入力データの準備（ADDRESS, TYPE, DATA + 終端2bit）
-assign encoder_input = {ADDRESS[7:0], TYPE[1:0], DATA[19:0], 2'b00};
+// 各データのビット順序を反転（LSBがMSBになる）
+assign encoder_input = {ADDRESS[0], ADDRESS[1], ADDRESS[2], ADDRESS[3], ADDRESS[4], ADDRESS[5], ADDRESS[6], ADDRESS[7],
+                        TYPE[0], TYPE[1],
+                        DATA[0], DATA[1], DATA[2], DATA[3], DATA[4], DATA[5], DATA[6], DATA[7], DATA[8], DATA[9],
+                        DATA[10], DATA[11], DATA[12], DATA[13], DATA[14], DATA[15], DATA[16], DATA[17], DATA[18], DATA[19],
+                        2'b00};
 
 // 符号化開始信号（counter状態でENCODE_ENABLEがアクティブな時）
 // stateがcounterの時にencoderがstartになる。

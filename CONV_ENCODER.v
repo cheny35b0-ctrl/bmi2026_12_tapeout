@@ -41,7 +41,6 @@ counter_8bit counter_8bit(
 assign c0 = input_bit ^ state[0] ^ state[1];  // G0 = 111
 assign c1 = input_bit ^ state[1];              // G1 = 101
 
-// 入力ビット選択（MSB first: ADDRESS[7]から開始）
 // input_bitには1bit分のデータが入る
 always @(posedge CLK or negedge POR) begin
     if (!POR)
@@ -73,16 +72,16 @@ always @(posedge CLK or negedge POR) begin
         ENCODE_DONE <= 1'b0;
     end
     else if (encoding) begin
-        if (bit_counter < 8'd32) begin
-            // 符号化処理（bit 0～31）
+        if (bit_counter > 8'd0 && bit_counter <= 8'd32) begin
+            // 符号化処理（bit 1～32、つまりDATA_IN[31]～[0]に対応）
             // 出力ビット格納（c0を先に、次にc1）LSBファースト
-            encoded_data[(bit_counter * 2)] <= c0;
-            encoded_data[(bit_counter * 2 + 1)] <= c1;
+            encoded_data[((bit_counter - 1) * 2)] <= c0;
+            encoded_data[((bit_counter - 1) * 2 + 1)] <= c1;
 
             // 状態更新（シフトレジスタ）
             state <= {state[0], input_bit};
         end
-        else if (bit_counter == 8'd32) begin
+        else if (bit_counter == 8'd33) begin
             // 符号化完了（encoded_dataが確定）
             DATA_OUT <= encoded_data;
             ENCODE_DONE <= 1'b1;

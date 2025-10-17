@@ -68,7 +68,7 @@ end
 
 initial fork
          ADDRESS = 8'b0000_0000;
-#950000  ADDRESS = 8'b0010_0001;
+#950000  ADDRESS = 8'b0010_0101;
 #1950000 ADDRESS = 8'b0010_1110;
 join
 
