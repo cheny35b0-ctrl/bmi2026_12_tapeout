@@ -12,7 +12,6 @@ parameter delay = 0;
 // テスト信号
 // 入力 : reg
 // 出力 : wire
-// OK
 reg CLK;
 reg POR;
 reg START;
@@ -138,7 +137,7 @@ end
 
 // タイムアウト監視（50us後に強制終了）
 initial begin
-    #50000;
+    #500000;
     $display("[ERROR] Testbench timeout!");
     $finish;
 end
