@@ -22,7 +22,7 @@ always@(posedge CLK or negedge POR)begin
       encode_loaded <= 1'b0;
     else if(state != encode)
       encode_loaded <= 1'b0;
-    else if(ENCODE_ENABLE && (state == encode) && ENCODE_DONE && !encode_loaded)
+    else if(ENCODE_ENABLE && (state == counter) && ENCODE_DONE && !encode_loaded)
       encode_loaded <= 1'b1;
 end
 
@@ -34,10 +34,10 @@ always@(posedge CLK or negedge POR)begin
     else if(!ENCODE_ENABLE && (state == type))
       // 符号化OFF時: type状態でDATAの20bitロード
       shift_reg <= DATA[63:0];
-    else if(ENCODE_ENABLE && (state == encode) && ENCODE_DONE && !encode_loaded)
+    else if(ENCODE_ENABLE && (state == counter) && ENCODE_DONE && !encode_loaded)
       // 符号化ON時: encode状態でENCODE_DONE後の最初だけ64bitロード
       shift_reg <= DATA[63:0];
-    else if((CLK5 == 1'b1) && ((state == shift) || (state == encode)))
+    else if((CLK5 == 1'b0) && ((state == shift) || (state == encode)))
       // シフト動作（encode状態でもシフト可能に）
       shift_reg <= shift_reg >> 1;
     else
@@ -49,7 +49,7 @@ always@(posedge CLK or negedge POR)begin
       S_OUT <= 1'b0;
     else if(!ENABLE)
       S_OUT <= 1'b0;
-    else if((state == type) || (state == shift))
+    else if((state == counter) || (state == type) || (state == shift) || (state == encode))
       S_OUT <= shift_reg[0];
     else
       S_OUT <= S_OUT;
