@@ -11,8 +11,8 @@ wire COM_EN_OPT, COM_EN_ELE;
 
 assign OPERATE_OPT = 1'b1;
 assign OPERATE_ELE = 1'b1;
-assign DATA_OPT[11:0] = 10'b0110_0101_11;
-assign DATA_ELE[11:0] = 10'b1001_1010_01;
+assign DATA_OPT[9:0] = 10'b1110_0101_11;
+assign DATA_ELE[9:0] = 10'b1001_1010_10;
 
 COM_CON_OUT COM_CON_OUT(
 .CLK(CLK),.POR(POR),.S_Bias_OPT(S_Bias_OPT),.S_Bias_ELE(S_Bias_ELE),
@@ -39,18 +39,24 @@ initial fork
          S_Bias_OPT = 1'b0;
 #100000  S_Bias_OPT = 1'b1;
 #180000  S_Bias_OPT = 1'b0;
-#920000  S_Bias_OPT = 1'b1;
+#950000  S_Bias_OPT = 1'b1;
 #1000000 S_Bias_OPT = 1'b0;
-#1920000 S_Bias_OPT = 1'b1;
+#1950000 S_Bias_OPT = 1'b1;
+#2000000 S_Bias_OPT = 1'b0;
+#2950000 S_Bias_OPT = 1'b1;
+#3000000 S_Bias_OPT = 1'b0;
 join
 
 initial fork
          S_Bias_ELE = 1'b0;
 #100000  S_Bias_ELE = 1'b1;
 #180000  S_Bias_ELE = 1'b0;
-#920000  S_Bias_ELE = 1'b1;
+#950000  S_Bias_ELE = 1'b1;
 #1000000 S_Bias_ELE = 1'b0;
-#1920000 S_Bias_ELE = 1'b1;
+#1950000 S_Bias_ELE = 1'b1;
+#2000000 S_Bias_ELE = 1'b0;
+#2950000 S_Bias_ELE = 1'b1;
+#3000000 S_Bias_ELE = 1'b0;
 join
 
 initial begin
@@ -58,17 +64,16 @@ initial begin
 end
 
 initial fork
-         ADDRESS = 8'h00;
-#500000  ADDRESS = 8'h20;
-#1000000 ADDRESS = 8'h40;
-#1500000 ADDRESS = 8'hF3;
+         ADDRESS = 8'b0000_0000;
+#950000  ADDRESS = 8'b0010_0001;
+#1950000 ADDRESS = 8'b0010_1110;
 join
 
 initial begin
     $dumpfile("COM_CON_OUT_tb.vcd");
     $dumpvars(0, COM_CON_OUT_tb);
     // テストの内容
-    #2000000;  // 適切な時間待つ
+    #4000000;  // 適切な時間待つ
     $finish;  // シミュレーション終了
 end
 

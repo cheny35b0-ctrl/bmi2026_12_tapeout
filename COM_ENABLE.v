@@ -11,11 +11,11 @@ module COM_ENABLE(
 //ENABLE generation
 localparam none = 3'b000, delay = 3'b001, on = 3'b010, fin = 3'b011;
 
-wire [15:0] clk_div_500,en_last;
+wire [15:0] clk_div_200,en_last;
 reg state_EN;
 
 counter_16bit COM_DELAY(.CLK(CLK),.POR(POR),.RST(!state_EN),
-                        .COUNT_UP(ADC_STATE == 1'b0),.PERIOD(16'd500),.COUNT(clk_div_500));
+                        .COUNT_UP(ADC_STATE == 1'b0),.PERIOD(16'd200),.COUNT(clk_div_200));
 
 counter_16bit EN_LAST(.CLK(CLK),.POR(POR),.RST(!state_EN),.COUNT_UP(ENABLE),.PERIOD(16'd500),.COUNT(en_last));
 
@@ -85,8 +85,8 @@ always@(posedge CLK or negedge POR) begin
 end
 
 counter_8bit delay_counter(.CLK(CLK),.POR(POR),.RST(!state_EN),
-                           .COUNT_UP( (state == delay) && (clk_div_500 ==16'd499)),
-                           .PERIOD(8'b0100_0000),.COUNT(address_delay));
+                           .COUNT_UP( (state == delay) && (clk_div_200 ==16'd199)),
+                           .PERIOD(8'b0011_1111),.COUNT(address_delay));
 
 always@(posedge CLK or negedge POR)begin
       if (!POR)

@@ -21,7 +21,7 @@ always@(posedge CLK or negedge POR)begin
       P_DATA <= 20'b0;
     else if(state == type)
       P_DATA[19:0] <= DATA[19:0];
-    else if((state == shift) && (CLK5 == 1'b1))
+    else if((state == shift) && (CLK5 == 1'b0))
       P_DATA <= P_DATA >>1;
     else
       P_DATA <= P_DATA;
