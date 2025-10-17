@@ -41,7 +41,7 @@ always@(posedge CLK or negedge POR)begin
       // シフト動作（encode状態でもシフト可能に）
       shift_reg <= shift_reg >> 1;
     else
-      P_DATA <= P_DATA;
+      shift_reg <= shift_reg;
 end
 
 always@(posedge CLK or negedge POR)begin

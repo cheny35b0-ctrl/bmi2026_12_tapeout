@@ -8,13 +8,15 @@
       "mcp__github__search_pull_requests",
       "mcp__github__get_pull_request_diff",
       "mcp__github__get_pull_request_reviews",
-      "mcp__github__get_pull_request_review_comments"
+      "mcp__github__get_pull_request_review_comments",
+      "Bash(iverilog:*)",
+      "Bash(vvp:*)"
     ],
     "deny": [],
     "ask": []
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "gemini-cli"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }
