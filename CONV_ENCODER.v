@@ -21,17 +21,24 @@ reg encoding;                      // 符号化中フラグ
 // G0 = 7 (111): c0 = d[k] XOR S0 XOR S1
 // G1 = 5 (101): c1 = d[k] XOR S1
 
-wire input_bit;
+reg input_bit;
 wire c0, c1;
-
-// 入力ビット選択（MSB first: ADDRESS[7]から開始）
-// input_bitには1bit分のデータが入る
-assign input_bit = DATA_IN[31 - bit_counter];
 
 // 符号化出力計算
 // XORで計算する
 assign c0 = input_bit ^ state[0] ^ state[1];  // G0 = 111
 assign c1 = input_bit ^ state[1];              // G1 = 101
+
+// 入力ビット選択（MSB first: ADDRESS[7]から開始）
+// input_bitには1bit分のデータが入る
+always @(posedge CLK or negedge POR) begin
+    if (!POR)
+        input_bit <= 1'b0;
+    else if (bit_counter < 6'd32)
+        input_bit <= DATA_IN[31 - bit_counter];
+    else
+        input_bit <= 1'b0;
+end
 
 // メイン処理
 always @(posedge CLK or negedge POR) begin
@@ -52,7 +59,7 @@ always @(posedge CLK or negedge POR) begin
         ENCODE_DONE <= 1'b0;
     end
     else if (encoding) begin
-        if (bit_counter <= 6'd31) begin
+        if (bit_counter < 6'd32) begin
             // 符号化処理（bit 0～31）
             // 出力ビット格納（c0を先に、次にc1）LSBファースト
             // ノンブロッキング代入に変更

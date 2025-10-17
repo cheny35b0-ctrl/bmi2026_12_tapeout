@@ -5,7 +5,7 @@ module SELECT (
     input CLK, CLK5, POR, ADC_STATE, C_OUT1, S_OUT, ENABLE,
     input [1:0] TYPE,
     input [7:0] ADDRESS,
-    input ENCODE_ENABLE,           // 符号化ON/OFFフラグ
+    input ENCODE_ENABLE,
     output reg OUT,
     output reg [2:0] state
 );
@@ -174,7 +174,6 @@ always@(posedge CLK or negedge POR)begin
               OUT <= OUT;
        else
            OUT <= OUT;
-
 end
 
 endmodule
