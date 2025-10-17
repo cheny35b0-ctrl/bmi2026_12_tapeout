@@ -2,7 +2,7 @@
 
 
 module COMMAND(
-	input	[7:0] unique,general,
+	input	[7:0] ADDRESS,general,
 	input	CLK,POR,
 	input   IN,
 	output  reg [399:0]     COMMAND
@@ -28,7 +28,7 @@ always @(posedge CLK or negedge POR) begin//listen
 		write:
 			if((stop >= 4'd10)&&(IN == 1'b1))
 				state <= standby;
-			else if ((com >= 16'd8 ) && (COMMAND[7:0] != unique) && (COMMAND[7:0] != general))
+			else if ((com >= 16'd8 ) && (COMMAND[7:0] != ADDRESS) && (COMMAND[7:0] != general))
 				state <= standby;
 			else if ((com >= 16'd10 ) && (COMMAND[10]==1))
 				state <= standby;

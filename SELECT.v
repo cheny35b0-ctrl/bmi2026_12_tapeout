@@ -56,7 +56,7 @@ always@(posedge CLK or negedge POR)begin
       P_TYPE <= 2'b0;
     else if(state == address)
       P_TYPE[1:0] <= TYPE[1:0];
-    else if((state == type) && (CLK5 == 1'b1))
+    else if((state == type) && (CLK5 == 1'b0))
       P_TYPE <= P_TYPE >>1;
     else
       P_TYPE <= P_TYPE;
@@ -65,7 +65,7 @@ end
 always@(posedge CLK or negedge POR)begin
     if(!POR)
       S_TYPE <= 1'b0;
-    else if((state == counter) || (state == address))
+    else if((state == address) || (state == type))
       S_TYPE <= P_TYPE[0];
     else
       S_TYPE <= S_TYPE;

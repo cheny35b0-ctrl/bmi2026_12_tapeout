@@ -1,34 +1,35 @@
-# Simulation files
-*.vcd
-*.vvp
-*.wlf
-*.vstf
-
 # Backup files
 *.bak
-*~
 
-# ModelSim files
+# ModelSim/QuestaSim files
 *.mpf
-*.mti
 work/
 transcript
 
-# GTKWave files
-*.gtkw
+# Quartus files
+*.qpf
+*.qsf
+*.qws
+db/
+incremental_db/
+output_files/
+simulation/
+*.rpt
+*.summary
+*.done
+*.jdi
+*.pin
+*.sof
+*.pof
 
-# Mac OS
+# Waveform files
+*.wlf
+*.vstf
+*.vcd
+*.vvp
+
+# Other temporary files
+*~
+*.swp
+*.swo
 .DS_Store
-.AppleDouble
-.LSOverride
-
-# Thumbnails
-._*
-
-# Compiled files
-*.o
-*.so
-*.a
-
-# Log files
-*.log
