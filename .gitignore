@@ -25,6 +25,8 @@ simulation/
 # Waveform files
 *.wlf
 *.vstf
+*.vcd
+*.vvp
 
 # Other temporary files
 *~

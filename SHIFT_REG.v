@@ -26,30 +26,33 @@ always@(posedge CLK or negedge POR)begin
       encode_loaded <= 1'b1;
 end
 
-//shift_reg
 always@(posedge CLK or negedge POR)begin
     if(!POR)
       shift_reg <= 64'b0;
     else if(!ENABLE)
       shift_reg <= 64'b0;
-    else if(ENCODE_ENABLE && (state == encode) && ENCODE_DONE && !encode_loaded)
-      // 符号化ON時: encode状態でENCODE_DONE後の最初だけ64bitロード
-      shift_reg <= DATA[63:0];
     else if(!ENCODE_ENABLE && (state == type))
       // 符号化OFF時: type状態でDATAの20bitロード
+      shift_reg <= DATA[63:0];
+    else if(ENCODE_ENABLE && (state == encode) && ENCODE_DONE && !encode_loaded)
+      // 符号化ON時: encode状態でENCODE_DONE後の最初だけ64bitロード
       shift_reg <= DATA[63:0];
     else if((CLK5 == 1'b1) && ((state == shift) || (state == encode)))
       // シフト動作（encode状態でもシフト可能に）
       shift_reg <= shift_reg >> 1;
     else
-      shift_reg <= shift_reg;
+      P_DATA <= P_DATA;
 end
 
 always@(posedge CLK or negedge POR)begin
     if(!POR)
-     S_OUT <= 1'b0;
+      S_OUT <= 1'b0;
+    else if(!ENABLE)
+      S_OUT <= 1'b0;
+    else if((state == type) || (state == shift))
+      S_OUT <= shift_reg[0];
     else
-     S_OUT <= shift_reg[0];
+      S_OUT <= S_OUT;
 end
 
 endmodule
