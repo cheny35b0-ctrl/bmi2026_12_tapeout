@@ -14,17 +14,6 @@ module SHIFT_REG (
 localparam none = 3'b000, counter = 3'b001, address = 3'b010, type = 3'b011, shift = 3'b100, encode = 3'b101, stop = 3'b110, fin = 3'b111;
 
 reg [63:0] shift_reg;              // 64bitシフトレジスタに拡張
-reg encode_loaded;                 // encode状態でのロード完了フラグ
-
-// encode_loadedフラグ制御
-always@(posedge CLK or negedge POR)begin
-    if(!POR)
-      encode_loaded <= 1'b0;
-    else if(state != encode)
-      encode_loaded <= 1'b0;
-    else if(ENCODE_ENABLE && (state == counter) && ENCODE_DONE && !encode_loaded)
-      encode_loaded <= 1'b1;
-end
 
 always@(posedge CLK or negedge POR)begin
     if(!POR)
@@ -34,8 +23,8 @@ always@(posedge CLK or negedge POR)begin
     else if(!ENCODE_ENABLE && (state == type))
       // 符号化OFF時: type状態でDATAの20bitロード
       shift_reg <= DATA[63:0];
-    else if(ENCODE_ENABLE && (state == counter) && ENCODE_DONE && !encode_loaded)
-      // 符号化ON時: encode状態でENCODE_DONE後の最初だけ64bitロード
+    else if(ENCODE_ENABLE && (state == counter) && ENCODE_DONE)
+      // 符号化ON時: counter状態でENCODE_DONE後に64bitロード
       shift_reg <= DATA[63:0];
     else if((CLK5 == 1'b0) && ((state == shift) || (state == encode)))
       // シフト動作（encode状態でもシフト可能に）
