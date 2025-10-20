@@ -200,7 +200,7 @@ COM_CON_OUT COM_CON_OUT(
 .S_Bias_OPT(S_Bias_OPT_IN),
 .S_Bias_ELE(S_Bias_ELE_IN),
 .OPERATE_OPT(command[17] | OPERATE_OPT_ext), // 内部コマンドOR外部入力
-.OPERATE_ELE(command[15] | OPERATE_ELE_ext), // 内部コマンドOR外部入力
+.OPERATE_ELE(command[15] | OPERATE_ELE_ext), 
 .DATA_OPT(DATA_OPT[9:0]),
 .DATA_ELE(DATA_ELE[9:0]),
 .ADDRESS(ADDRESS[7:0]),
