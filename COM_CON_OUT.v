@@ -1,9 +1,10 @@
-//COM_CON_OUT for multi device + new 10bit ADC
+//COM_CON_OUT for multi device + new 10bit ADC + convolutional encoding
 
 module COM_CON_OUT(
    input CLK,POR,S_Bias_OPT,S_Bias_ELE,OPERATE_OPT,OPERATE_ELE,
    input [9:0] DATA_OPT,DATA_ELE,
    input [7:0] ADDRESS,
+   input ENCODE_ENABLE,              // 符号化ON/OFFフラグ（command[343]から）
    output COM_EN_OPT, COM_EN_ELE,
    output OUT
 );
@@ -25,6 +26,7 @@ COM_CON_TOP COM_CON_TOP(
 .OPERATE(MEASUREMENT_CODE),
 .TYPE(MEASUREMENT_CODE),
 .ADDRESS(ADDRESS[7:0]),
+.ENCODE_ENABLE(ENCODE_ENABLE),
 .ENABLE(ENABLE_WIRE),
 .OUT(OUT)
 );

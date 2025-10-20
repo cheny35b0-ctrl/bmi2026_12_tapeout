@@ -80,7 +80,8 @@ always@(posedge CLK or negedge POR) begin
             else
                      state <= fin;
 
-          default: state <= none;
+          default
+          : state <= none;
           endcase
 end
 
