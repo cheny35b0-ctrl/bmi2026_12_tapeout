@@ -3,8 +3,10 @@
 
 # ModelSim/QuestaSim files
 *.mpf
+*.mti
 work/
 transcript
+a.out
 
 # Quartus files
 *.qpf
