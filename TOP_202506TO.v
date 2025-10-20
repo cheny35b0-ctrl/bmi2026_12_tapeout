@@ -4,9 +4,16 @@ module TOP_202506TO(
 
 	input CLK,
 	input ORDER,
-	
+
 	input POR,
     input [5:0] ADDRESS_low,
+    input conv_encoder_state,        // デバッグ用: CONV_ENCODERの動作モード切替
+    input [3:0] DEBUG_DATA_LOWER,    // デバッグモード用の下位4bit入力（外部パッド）
+    input S_Bias_ELE_IN,             // COM_CON_OUTへのS_Bias_ELE入力（外部パッド）
+    input S_Bias_OPT_IN,             // COM_CON_OUTへのS_Bias_OPT入力（外部パッド）
+    input ENCODE_ENABLE_ext,    // 外部パッドからのENCODE_ENABLE入力
+    input OPERATE_OPT_ext,      // 外部パッドからのOPERATE_OPT入力
+    input OPERATE_ELE_ext,      // 外部パッドからのOPERATE_ELE入力
 
 //manchester decoder
     input MAN,
@@ -142,14 +149,14 @@ STIM   OPTICAL_STIM(
 .STIM(OPT_STIM)
 );
 
-//electric measuring	
+//electric measuring
 wire 	[9:0]	DATA_ELE;
 MEASURE	ELECTRIC_MEAS(
 .CLK(CLK),
 .POR(POR),
 .RST(1'b0),
 .DELAY({command[217:210],command[207:200]}),
-.OPERATE(command[15] & command[10]), 
+.OPERATE(command[15] & command[10]),
 .COMPARATOR(COMPARATOR_ELE),
 .S_Bias(S_Bias_ELE),
 .COMP_CLK(COMP_CLK_ELE),
@@ -190,14 +197,16 @@ wire COM_EN_OPT,COM_EN_ELE;
 COM_CON_OUT COM_CON_OUT(
 .CLK(CLK),
 .POR(POR),
-.S_Bias_OPT(S_Bias_OPT),
-.S_Bias_ELE(S_Bias_ELE),
-.OPERATE_OPT(command[17]),
-.OPERATE_ELE(command[15]),
+.S_Bias_OPT(S_Bias_OPT_IN),
+.S_Bias_ELE(S_Bias_ELE_IN),
+.OPERATE_OPT(command[17] | OPERATE_OPT_ext), // 内部コマンドOR外部入力
+.OPERATE_ELE(command[15] | OPERATE_ELE_ext), 
 .DATA_OPT(DATA_OPT[9:0]),
 .DATA_ELE(DATA_ELE[9:0]),
 .ADDRESS(ADDRESS[7:0]),
-.ENCODE_ENABLE(command[343]),         // 符号化ON/OFFフラグ
+.ENCODE_ENABLE(command[343] | ENCODE_ENABLE_ext), // 内部コマンドOR外部入力
+.conv_encoder_state(conv_encoder_state), // デバッグ用モード切替
+.DEBUG_DATA_LOWER(DEBUG_DATA_LOWER),  // デバッグ用下位4bit
 .COM_EN_OPT(COM_EN_OPT),
 .COM_EN_ELE(COM_EN_ELE),
 .OUT(SERIAL_OUT)

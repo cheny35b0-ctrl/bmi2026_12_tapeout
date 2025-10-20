@@ -5,14 +5,22 @@ module COM_CON_OUT(
    input [9:0] DATA_OPT,DATA_ELE,
    input [7:0] ADDRESS,
    input ENCODE_ENABLE,              // 符号化ON/OFFフラグ（command[343]から）
+   input conv_encoder_state,         // デバッグ用: 1でデバッグモード、0で通常モード
+   input [3:0] DEBUG_DATA_LOWER,     // デバッグモード用の下位4bit入力（外部パッドから）
    output COM_EN_OPT, COM_EN_ELE,
    output OUT
 );
 
+// デバッグモード用の上位ビット固定値（下位4bitを除く16bit分）
+localparam [15:0] DEBUG_DATA_UPPER = 16'hAAAA;
+
 wire [1:0] MEASUREMENT_CODE;
 wire [19:0] DATA;
 
-assign DATA = {DATA_OPT, DATA_ELE};
+// conv_encoder_stateに応じてDATA出力を切り替え
+// Low: 通常モード（DATA_OPTとDATA_ELEを連結）
+// High: デバッグモード（上位16bitを固定値、下位4bitは外部入力）
+assign DATA = conv_encoder_state ? {DEBUG_DATA_UPPER, DEBUG_DATA_LOWER} : {DATA_OPT, DATA_ELE};
 
 
 wire ENABLE_WIRE;
