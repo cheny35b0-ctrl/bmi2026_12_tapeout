@@ -1,14 +1,14 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Fri Oct 17 15:03:13 2025
+[*] Sat Oct 18 08:27:08 2025
 [*]
 [dumpfile] "/Users/akagiyuusuke/T4lab_BMI/COM_CON_OUT_tb.vcd"
-[dumpfile_mtime] "Fri Oct 17 14:50:41 2025"
-[dumpfile_size] 2256565
+[dumpfile_mtime] "Sat Oct 18 08:08:16 2025"
+[dumpfile_size] 2256573
 [savefile] "/Users/akagiyuusuke/T4lab_BMI/COM_CON_OUT_tb.sav"
 [timestart] 1740473
 [size] 1470 830
-[pos] 160 1091
+[pos] 153 794
 *-7.000000 1740700 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB

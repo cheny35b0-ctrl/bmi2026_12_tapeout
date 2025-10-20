@@ -1,0 +1,55 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Sat Oct 18 08:27:19 2025
+[*]
+[dumpfile] "/Users/akagiyuusuke/T4lab_BMI/COM_CON_OUT_tb.vcd"
+[dumpfile_mtime] "Sat Oct 18 08:08:16 2025"
+[dumpfile_size] 2256573
+[savefile] "/Users/akagiyuusuke/T4lab_BMI/COM_CON_OUT_kekka.sav"
+[timestart] 1739760
+[size] 1470 830
+[pos] 161 1091
+*-11.000000 1744400 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
+[treeopen] COM_CON_OUT_tb.
+[treeopen] COM_CON_OUT_tb.COM_CON_OUT.
+[treeopen] COM_CON_OUT_tb.COM_CON_OUT.COM_CON_TOP.
+[treeopen] COM_CON_OUT_tb.COM_CON_OUT.COM_CON_TOP.CONV_ENCODER.
+[sst_width] 255
+[signals_width] 177
+[sst_expanded] 1
+[sst_vpaned_height] 239
+@28
+COM_CON_OUT_tb.COM_CON_OUT.COM_CON_TOP.CLK
+@29
+COM_CON_OUT_tb.COM_CON_OUT.COM_CON_TOP.CLK5
+@28
+COM_CON_OUT_tb.COM_CON_OUT.COM_CON_TOP.SELECT.state[2:0]
+COM_CON_OUT_tb.COM_CON_OUT.COM_CON_TOP.SELECT.OUT
+[pattern_trace] 1
+[pattern_trace] 0
