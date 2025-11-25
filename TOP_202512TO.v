@@ -7,11 +7,6 @@ module TOP_202512TO(
 
 	input POR,
     input [5:0] unique_low,
-    input conv_encoder_state,        // デバッグ用: CONV_ENCODERの動作モード切替
-    input [3:0] DEBUG_DATA_LOWER,    // デバッグモード用の下位4bit入力（外部パッド）
-    input S_Bias_ELE_IN,             // COM_CON_OUTへのS_Bias_ELE入力（外部パッド）
-    input S_Bias_OPT_IN,             // COM_CON_OUTへのS_Bias_OPT入力（外部パッド）
-    input ENCODE_ENABLE_ext,    // 外部パッドからのENCODE_ENABLE入力
 
 //manchester decoder
     input MAN,
@@ -52,6 +47,12 @@ module TOP_202512TO(
 	output	S3_OPT,
     output  [4:0] CAL1_OPT,CAL2_OPT,
 
+// convolutional encoding debug
+	input conv_encoder_state,        // デバッグ用: CONV_ENCODERの動作モード切替
+    input [3:0] DEBUG_DATA_LOWER,    // デバッグモード用の下位4bit入力（外部パッド）
+    input S_Bias_ELE_IN,             // COM_CON_OUTへのS_Bias_ELE入力（外部パッド）
+    input S_Bias_OPT_IN,             // COM_CON_OUTへのS_Bias_OPT入力（外部パッド）
+    input ENCODE_ENABLE_ext,    // 外部パッドからのENCODE_ENABLE入力
 
 //communication control
     output  SERIAL_OUT
