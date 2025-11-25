@@ -6,19 +6,11 @@ module TOP_202512TO(
 	input ORDER,
 
 	input POR,
-    input [5:0] ADDRESS_low,
-    input conv_encoder_state,        // デバッグ用: CONV_ENCODERの動作モード切替
-    input [3:0] DEBUG_DATA_LOWER,    // デバッグモード用の下位4bit入力（外部パッド）
-    input S_Bias_ELE_IN,             // COM_CON_OUTへのS_Bias_ELE入力（外部パッド）
-    input S_Bias_OPT_IN,             // COM_CON_OUTへのS_Bias_OPT入力（外部パッド）
-    input ENCODE_ENABLE_ext,    // 外部パッドからのENCODE_ENABLE入力
-    input OPERATE_OPT_ext,      // 外部パッドからのOPERATE_OPT入力
-    input OPERATE_ELE_ext,      // 外部パッドからのOPERATE_ELE入力
+    input [5:0] unique_low,
 
 //manchester decoder
     input MAN,
     input DECODER_RST,
-    output NOR1,NOR2,
     output CLK_OUT,
     output ORDER_OUT,
 
@@ -55,19 +47,23 @@ module TOP_202512TO(
 	output	S3_OPT,
     output  [4:0] CAL1_OPT,CAL2_OPT,
 
+// convolutional encoding debug
+	input conv_encoder_state,        // デバッグ用: CONV_ENCODERの動作モード切替
+    input [3:0] DEBUG_DATA_LOWER,    // デバッグモード用の下位4bit入力（外部パッド）
+    input S_Bias_ELE_IN,             // COM_CON_OUTへのS_Bias_ELE入力（外部パッド）
+    input S_Bias_OPT_IN,             // COM_CON_OUTへのS_Bias_OPT入力（外部パッド）
+    input ENCODE_ENABLE_ext,    // 外部パッドからのENCODE_ENABLE入力
 
 //communication control
     output  SERIAL_OUT
-    //output  COM_EN_OPT,
-    //output  COM_EN_ELE
 
 );
 
 
 //address
-wire [7:0] ADDRESS;
-assign ADDRESS[7:6] = 2'b00;
-assign ADDRESS[5:0] = ADDRESS_low[5:0];
+wire [7:0] unique;
+assign unique[7:6] = 2'b00;
+assign unique[5:0] = unique_low[5:0];
 
 localparam general = 8'b1111_1111;
 
@@ -76,8 +72,6 @@ MAN_DECODER MAN_DECODER(
 .MAN(MAN),
 .POR(POR),
 .RST(DECODER_RST),
-.NOR1(NOR1),
-.NOR2(NOR2),
 .DATA_OUT(ORDER_OUT),
 .CLK_OUT(CLK_OUT)
 );
@@ -85,7 +79,7 @@ MAN_DECODER MAN_DECODER(
 //command
 wire [399:0] command;
 COMMAND COMMAND(
-.ADDRESS(ADDRESS),
+.unique(unique),
 .general(general),
 .CLK(CLK),
 .POR(POR),
@@ -192,23 +186,20 @@ MEASURE	OPTICAL_MEAS(
 );
 
 
-wire COM_EN_OPT,COM_EN_ELE;
 //communication control
 COM_CON_OUT COM_CON_OUT(
 .CLK(CLK),
 .POR(POR),
 .S_Bias_OPT(S_Bias_OPT_IN),
 .S_Bias_ELE(S_Bias_ELE_IN),
-.OPERATE_OPT(command[17] | OPERATE_OPT_ext), // 内部コマンドOR外部入力
-.OPERATE_ELE(command[15] | OPERATE_ELE_ext), 
+.OPERATE_OPT(command[17]),
+.OPERATE_ELE(command[15]),
 .DATA_OPT(DATA_OPT[9:0]),
 .DATA_ELE(DATA_ELE[9:0]),
-.ADDRESS(ADDRESS[7:0]),
+.ADDRESS(unique[7:0]),
 .ENCODE_ENABLE(command[343] | ENCODE_ENABLE_ext), // 内部コマンドOR外部入力
 .conv_encoder_state(conv_encoder_state), // デバッグ用モード切替
 .DEBUG_DATA_LOWER(DEBUG_DATA_LOWER),  // デバッグ用下位4bit
-.COM_EN_OPT(COM_EN_OPT),
-.COM_EN_ELE(COM_EN_ELE),
 .OUT(SERIAL_OUT)
 );
 

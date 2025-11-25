@@ -10,7 +10,6 @@ reg ENCODE_ENABLE;           // 注: TOPモジュールではcommand[343] | ENCO
 reg conv_encoder_state;      // デバッグ用モード切替信号
 reg [3:0] DEBUG_DATA_LOWER;  // デバッグモード用の下位4bit入力
 wire OUT;
-wire COM_EN_OPT, COM_EN_ELE;
 
 
 assign OPERATE_OPT = 1'b1;  // 注: TOPモジュールではcommand[17] | OPERATE_OPT_ext
@@ -20,7 +19,6 @@ assign DATA_ELE[9:0] = 10'b1001_1010_10;
 
 COM_CON_OUT COM_CON_OUT(
 .CLK(CLK),.POR(POR),.S_Bias_OPT(S_Bias_OPT),.S_Bias_ELE(S_Bias_ELE),
-.COM_EN_OPT(COM_EN_OPT),.COM_EN_ELE(COM_EN_ELE),
 .OPERATE_OPT(OPERATE_OPT),.OPERATE_ELE(OPERATE_ELE),
 .ADDRESS(ADDRESS[7:0]),.DATA_OPT(DATA_OPT[9:0]),.DATA_ELE(DATA_ELE[9:0]),
 .ENCODE_ENABLE(ENCODE_ENABLE),
