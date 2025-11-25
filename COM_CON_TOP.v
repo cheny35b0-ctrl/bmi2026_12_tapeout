@@ -6,7 +6,7 @@ module COM_CON_TOP (
     input [7:0] ADDRESS,
     input [19:0] DATA,
     input ENCODE_ENABLE,           // 符号化ON/OFFフラグ（command[343]から）
-    output OUT, ENABLE
+    output OUT
 );
 
 // ADC_STATE synchronization
@@ -55,6 +55,8 @@ CONV_ENCODER CONV_ENCODER(
 // データセレクタ（符号化ON/OFFでデータを選択）
 // 符号化OFF時: DATAの20bitのみ（ADDRESSとTYPEはSELECT.vで別途シリアル化）
 assign output_data = ENCODE_ENABLE ? encoder_output : {44'b0, DATA[19:0]};
+
+wire ENABLE;
 
 COM_ENABLE COM_ENABLE(
 .CLK(CLK),.POR(POR),

@@ -7,7 +7,6 @@ module COM_CON_OUT(
    input ENCODE_ENABLE,              // 符号化ON/OFFフラグ（command[343]から）
    input conv_encoder_state,         // デバッグ用: 1でデバッグモード、0で通常モード
    input [3:0] DEBUG_DATA_LOWER,     // デバッグモード用の下位4bit入力（外部パッドから）
-   output COM_EN_OPT, COM_EN_ELE,
    output OUT
 );
 
@@ -23,8 +22,6 @@ wire [19:0] DATA;
 assign DATA = conv_encoder_state ? {DEBUG_DATA_UPPER, DEBUG_DATA_LOWER} : {DATA_OPT, DATA_ELE};
 
 
-wire ENABLE_WIRE;
-
 COM_CON_TOP COM_CON_TOP(
 .CLK(CLK),
 .POR(POR),
@@ -35,12 +32,8 @@ COM_CON_TOP COM_CON_TOP(
 .TYPE(MEASUREMENT_CODE),
 .ADDRESS(ADDRESS[7:0]),
 .ENCODE_ENABLE(ENCODE_ENABLE),
-.ENABLE(ENABLE_WIRE),
 .OUT(OUT)
 );
-
-assign COM_EN_OPT = ENABLE_WIRE;
-assign COM_EN_ELE = ENABLE_WIRE;
 
 MEASUREMENT_TYPE_ENCODER MEASUREMENT_TYPE_ENCODER(
 .CLK(CLK),

@@ -56,8 +56,6 @@ module TOP_202512TO(
 
 //communication control
     output  SERIAL_OUT
-    //output  COM_EN_OPT,
-    //output  COM_EN_ELE
 
 );
 
@@ -188,7 +186,6 @@ MEASURE	OPTICAL_MEAS(
 );
 
 
-wire COM_EN_OPT,COM_EN_ELE;
 //communication control
 COM_CON_OUT COM_CON_OUT(
 .CLK(CLK),
@@ -196,15 +193,13 @@ COM_CON_OUT COM_CON_OUT(
 .S_Bias_OPT(S_Bias_OPT_IN),
 .S_Bias_ELE(S_Bias_ELE_IN),
 .OPERATE_OPT(command[17]),
-.OPERATE_ELE(command[15]), 
+.OPERATE_ELE(command[15]),
 .DATA_OPT(DATA_OPT[9:0]),
 .DATA_ELE(DATA_ELE[9:0]),
 .ADDRESS(unique[7:0]),
 .ENCODE_ENABLE(command[343] | ENCODE_ENABLE_ext), // 内部コマンドOR外部入力
 .conv_encoder_state(conv_encoder_state), // デバッグ用モード切替
 .DEBUG_DATA_LOWER(DEBUG_DATA_LOWER),  // デバッグ用下位4bit
-.COM_EN_OPT(COM_EN_OPT),
-.COM_EN_ELE(COM_EN_ELE),
 .OUT(SERIAL_OUT)
 );
 
