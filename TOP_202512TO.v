@@ -56,7 +56,10 @@ module TOP_202512TO(
     input ENCODE_ENABLE_ext,    // 外部パッドからのENCODE_ENABLE入力
 
 //communication control
-    output  SERIAL_OUT
+    output  SERIAL_OUT,
+
+//communication control SAKATA version
+    output  SERIAL_OUT_SAKATA
 
 );
 
@@ -203,6 +206,23 @@ COM_CON_OUT COM_CON_OUT(
 .conv_encoder_state(conv_encoder_state), // デバッグ用モード切替
 .DEBUG_DATA_LOWER(DEBUG_DATA_LOWER),  // デバッグ用下位4bit
 .OUT(SERIAL_OUT)
+);
+
+//communication control SAKATA version
+wire COM_EN_OPT_SAKATA, COM_EN_ELE_SAKATA;
+COM_CON_OUT_SAKATA COM_CON_OUT_SAKATA(
+.CLK(CLK),
+.POR(POR),
+.S_Bias_OPT(S_Bias_OPT_IN),
+.S_Bias_ELE(S_Bias_ELE_IN),
+.OPERATE_OPT(command[17]),
+.OPERATE_ELE(command[15]),
+.DATA_OPT(DATA_OPT[9:0]),
+.DATA_ELE(DATA_ELE[9:0]),
+.ADDRESS(unique[7:0]),
+.COM_EN_OPT(COM_EN_OPT_SAKATA),
+.COM_EN_ELE(COM_EN_ELE_SAKATA),
+.OUT(SERIAL_OUT_SAKATA)
 );
 
 endmodule 
