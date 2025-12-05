@@ -6,7 +6,8 @@ module TOP_202512TO(
 	input ORDER,
 
 	input POR,
-    input [5:0] unique_low,
+    input [1:0] unique_low,
+    input unique_debug,
 
 //manchester decoder
     input MAN,
@@ -63,7 +64,8 @@ module TOP_202512TO(
 //address
 wire [7:0] unique;
 assign unique[7:6] = 2'b00;
-assign unique[5:0] = unique_low[5:0];
+assign unique[5:2] = unique_debug ? 4'b1111 : 4'b0000;
+assign unique[1:0] = unique_low[1:0];
 
 localparam general = 8'b1111_1111;
 
@@ -79,7 +81,7 @@ MAN_DECODER MAN_DECODER(
 //command
 wire [399:0] command;
 COMMAND COMMAND(
-.unique(unique),
+.ADDRESS(unique),
 .general(general),
 .CLK(CLK),
 .POR(POR),
