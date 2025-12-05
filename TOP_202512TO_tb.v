@@ -51,7 +51,6 @@ wire [4:0] CAL1_OPT, CAL2_OPT;
 
 // Convolutional encoding debug
 reg conv_encoder_state;
-reg [3:0] DEBUG_DATA_LOWER;
 reg S_Bias_ELE_IN;
 reg S_Bias_OPT_IN;
 reg ENCODE_ENABLE_ext;
@@ -98,7 +97,6 @@ TOP_202512TO dut (
     .CAL1_OPT(CAL1_OPT),
     .CAL2_OPT(CAL2_OPT),
     .conv_encoder_state(conv_encoder_state),
-    .DEBUG_DATA_LOWER(DEBUG_DATA_LOWER),
     .S_Bias_ELE_IN(S_Bias_ELE_IN),
     .S_Bias_OPT_IN(S_Bias_OPT_IN),
     .ENCODE_ENABLE_ext(ENCODE_ENABLE_ext),
@@ -133,7 +131,6 @@ initial begin
     COMPARATOR_ELE = 1'b0;
     COMPARATOR_OPT = 1'b0;
     conv_encoder_state = 1'b0;
-    DEBUG_DATA_LOWER = 4'b0000;
     S_Bias_ELE_IN = 1'b0;
     S_Bias_OPT_IN = 1'b0;
     ENCODE_ENABLE_ext = 1'b0;

@@ -8,7 +8,6 @@ reg [7:0] ADDRESS;
 wire [9:0] DATA_OPT,DATA_ELE;
 reg ENCODE_ENABLE;           // 注: TOPモジュールではcommand[343] | ENCODE_ENABLE_ext
 reg conv_encoder_state;      // デバッグ用モード切替信号
-reg [3:0] DEBUG_DATA_LOWER;  // デバッグモード用の下位4bit入力
 wire OUT;
 
 
@@ -23,7 +22,6 @@ COM_CON_OUT COM_CON_OUT(
 .ADDRESS(ADDRESS[7:0]),.DATA_OPT(DATA_OPT[9:0]),.DATA_ELE(DATA_ELE[9:0]),
 .ENCODE_ENABLE(ENCODE_ENABLE),
 .conv_encoder_state(conv_encoder_state),
-.DEBUG_DATA_LOWER(DEBUG_DATA_LOWER),
 .OUT(OUT)
 );
 
@@ -93,12 +91,7 @@ initial fork
 #2950000 conv_encoder_state = 1'b1; // 3回目の測定はデバッグモード
 join
 
-// DEBUG_DATA_LOWER制御 (デバッグモード時の下位4bit入力)
-initial fork
-         DEBUG_DATA_LOWER = 4'b0000;  // 初期値
-#1950000 DEBUG_DATA_LOWER = 4'b1100;  // 2回目の測定: デバッグデータ = 0xC
-#2950000 DEBUG_DATA_LOWER = 4'b0101;  // 3回目の測定: デバッグデータ = 0x5
-join
+// デバッグモード時のテストデータはCOM_CON_OUT内のlocalparamで設定 (DEBUG_TEST_DATA = 20'h7B3A9)
 
 initial begin
     $dumpfile("COM_CON_OUT_tb.vcd");

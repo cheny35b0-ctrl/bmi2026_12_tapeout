@@ -50,10 +50,9 @@ module TOP_202512TO(
 
 // convolutional encoding debug
 	input conv_encoder_state,        // デバッグ用: CONV_ENCODERの動作モード切替
-    input [3:0] DEBUG_DATA_LOWER,    // デバッグモード用の下位4bit入力（外部パッド）
     input S_Bias_ELE_IN,             // COM_CON_OUTへのS_Bias_ELE入力（外部パッド）
     input S_Bias_OPT_IN,             // COM_CON_OUTへのS_Bias_OPT入力（外部パッド）
-    input ENCODE_ENABLE_ext,    // 外部パッドからのENCODE_ENABLE入力
+    input ENCODE_ENABLE_ext,         // 外部パッドからのENCODE_ENABLE入力
 
 //communication control
     output  SERIAL_OUT,
@@ -204,7 +203,6 @@ COM_CON_OUT COM_CON_OUT(
 .ADDRESS(unique[7:0]),
 .ENCODE_ENABLE(command[343] | ENCODE_ENABLE_ext), // 内部コマンドOR外部入力
 .conv_encoder_state(conv_encoder_state), // デバッグ用モード切替
-.DEBUG_DATA_LOWER(DEBUG_DATA_LOWER),  // デバッグ用下位4bit
 .OUT(SERIAL_OUT)
 );
 
