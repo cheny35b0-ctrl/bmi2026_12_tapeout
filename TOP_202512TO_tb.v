@@ -51,8 +51,6 @@ wire [4:0] CAL1_OPT, CAL2_OPT;
 
 // Convolutional encoding debug
 reg conv_encoder_state;
-reg S_Bias_ELE_IN;
-reg S_Bias_OPT_IN;
 reg ENCODE_ENABLE_ext;
 
 // Communication control
@@ -97,8 +95,6 @@ TOP_202512TO dut (
     .CAL1_OPT(CAL1_OPT),
     .CAL2_OPT(CAL2_OPT),
     .conv_encoder_state(conv_encoder_state),
-    .S_Bias_ELE_IN(S_Bias_ELE_IN),
-    .S_Bias_OPT_IN(S_Bias_OPT_IN),
     .ENCODE_ENABLE_ext(ENCODE_ENABLE_ext),
     .SERIAL_OUT(SERIAL_OUT),
     .SERIAL_OUT_SAKATA(SERIAL_OUT_SAKATA)
@@ -131,8 +127,6 @@ initial begin
     COMPARATOR_ELE = 1'b0;
     COMPARATOR_OPT = 1'b0;
     conv_encoder_state = 1'b0;
-    S_Bias_ELE_IN = 1'b0;
-    S_Bias_OPT_IN = 1'b0;
     ENCODE_ENABLE_ext = 1'b0;
 
     // Release POR
@@ -206,32 +200,11 @@ initial begin
     #(10*clock);
 
     $display("Command sent successfully");
-    $display("\nStarting measurement cycles...\n");
+    $display("\nWaiting for measurement cycles...\n");
 
-    // Measurement cycle 1
-    #50000;
-    S_Bias_ELE_IN = 1'b1;
-    S_Bias_OPT_IN = 1'b1;
-    #80000;
-    S_Bias_ELE_IN = 1'b0;
-    S_Bias_OPT_IN = 1'b0;
-    #(700000);
-
-    // Measurement cycle 2
-    S_Bias_ELE_IN = 1'b1;
-    S_Bias_OPT_IN = 1'b1;
-    #50000;
-    S_Bias_ELE_IN = 1'b0;
-    S_Bias_OPT_IN = 1'b0;
-    #(900000);
-
-    // Measurement cycle 3
-    S_Bias_ELE_IN = 1'b1;
-    S_Bias_OPT_IN = 1'b1;
-    #50000;
-    S_Bias_ELE_IN = 1'b0;
-    S_Bias_OPT_IN = 1'b0;
-    #(900000);
+    // Wait for measurements to complete
+    // S_Bias signals are generated internally by MEASURE modules
+    #2500000;
 
     $display("\n========================================");
     $display("Test Complete");

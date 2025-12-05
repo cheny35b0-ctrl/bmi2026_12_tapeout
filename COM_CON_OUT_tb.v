@@ -2,7 +2,7 @@
 
 module COM_CON_OUT_tb;
 reg CLK, POR;
-reg S_Bias_OPT, S_Bias_ELE;  // 注: TOPモジュールではS_Bias_OPT_IN/S_Bias_ELE_INとして入力
+reg S_Bias_OPT, S_Bias_ELE;  // 注: TOPモジュールではMEASUREモジュールから生成される
 wire OPERATE_OPT,OPERATE_ELE;
 reg [7:0] ADDRESS;
 wire [9:0] DATA_OPT,DATA_ELE;
@@ -39,7 +39,7 @@ initial fork
 #300   POR = 1'b1;
 join
 
-// S_Bias_OPT制御 (TOPモジュールではS_Bias_OPT_INとして外部入力)
+// S_Bias_OPT制御 (TOPモジュールではMEASUREモジュールから生成)
 initial fork
          S_Bias_OPT = 1'b0;
 #100000  S_Bias_OPT = 1'b1;
@@ -52,7 +52,7 @@ initial fork
 #3000000 S_Bias_OPT = 1'b0;
 join
 
-// S_Bias_ELE制御 (TOPモジュールではS_Bias_ELE_INとして外部入力)
+// S_Bias_ELE制御 (TOPモジュールではMEASUREモジュールから生成)
 initial fork
          S_Bias_ELE = 1'b0;
 #100000  S_Bias_ELE = 1'b1;

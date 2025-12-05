@@ -50,8 +50,6 @@ module TOP_202512TO(
 
 // convolutional encoding debug
 	input conv_encoder_state,        // デバッグ用: CONV_ENCODERの動作モード切替
-    input S_Bias_ELE_IN,             // COM_CON_OUTへのS_Bias_ELE入力（外部パッド）
-    input S_Bias_OPT_IN,             // COM_CON_OUTへのS_Bias_OPT入力（外部パッド）
     input ENCODE_ENABLE_ext,         // 外部パッドからのENCODE_ENABLE入力
 
 //communication control
@@ -194,8 +192,8 @@ MEASURE	OPTICAL_MEAS(
 COM_CON_OUT COM_CON_OUT(
 .CLK(CLK),
 .POR(POR),
-.S_Bias_OPT(S_Bias_OPT_IN),
-.S_Bias_ELE(S_Bias_ELE_IN),
+.S_Bias_OPT(S_Bias_OPT),
+.S_Bias_ELE(S_Bias_ELE),
 .OPERATE_OPT(command[17]),
 .OPERATE_ELE(command[15]),
 .DATA_OPT(DATA_OPT[9:0]),
@@ -211,8 +209,8 @@ wire COM_EN_OPT_SAKATA, COM_EN_ELE_SAKATA;
 COM_CON_OUT_SAKATA COM_CON_OUT_SAKATA(
 .CLK(CLK),
 .POR(POR),
-.S_Bias_OPT(S_Bias_OPT_IN),
-.S_Bias_ELE(S_Bias_ELE_IN),
+.S_Bias_OPT(S_Bias_OPT),
+.S_Bias_ELE(S_Bias_ELE),
 .OPERATE_OPT(command[17]),
 .OPERATE_ELE(command[15]),
 .DATA_OPT(DATA_OPT[9:0]),
