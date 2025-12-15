@@ -5,12 +5,12 @@ module BMI_testbench_single (
 
 
 output reg CLK,IN,RST,
-output wire MAN,
+output reg MAN,
 output reg [399:0] command = 400'b0
 
 );
 
-parameter delay = 0;
+parameter delay = 10;
 parameter clock = 100;
 parameter msec = 1000_000;
 parameter usec = 1000;
@@ -20,6 +20,14 @@ reg [399:0] command1 = 400'b0;
 reg [399:0] command2 = 400'b0;
 reg [7:0] address =8'b1111_1111;
 
+initial begin
+ // VCD dump for waveform viewing
+ 	$dumpfile("BMI_testbench_single.vcd");
+ 	$dumpvars(0, BMI_testbench_single);
+// テストの内容
+    #50000000;  // 適切な時間待つ
+    $finish;  // シミュレーション終了
+end
 
 always begin
 	CLK = 1'b1;
@@ -245,6 +253,9 @@ end
 
 end
 
-assign MAN = (CLK ^| IN);
+// Manchester encoding: XOR of CLK and IN, updated on both clock edges
+always @(posedge CLK or negedge CLK) begin
+	MAN <= CLK ^ IN;
+end
 
 endmodule
