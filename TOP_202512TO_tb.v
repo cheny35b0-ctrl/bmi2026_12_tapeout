@@ -1,6 +1,9 @@
-`timescale 1ns/1ps
+`timescale 1ns/1ns
 
 module TOP_202512TO_tb;
+
+parameter delay = 0;
+parameter clock = 100;
 
 // Clock and reset
 reg CLK;
@@ -12,7 +15,7 @@ reg [1:0] unique_low;
 reg unique_debug;
 
 // Manchester decoder
-reg MAN;
+wire MAN;
 reg DECODER_RST;
 wire CLK_OUT;
 wire ORDER_OUT;
@@ -48,13 +51,14 @@ wire [4:0] CAL1_OPT, CAL2_OPT;
 
 // Convolutional encoding debug
 reg conv_encoder_state;
-reg [3:0] DEBUG_DATA_LOWER;
-reg S_Bias_ELE_IN;
-reg S_Bias_OPT_IN;
 reg ENCODE_ENABLE_ext;
 
 // Communication control
 wire SERIAL_OUT;
+wire SERIAL_OUT_SAKATA;
+
+// Command register
+reg [399:0] command = 400'b0;
 
 // Instantiate DUT
 TOP_202512TO dut (
@@ -91,154 +95,123 @@ TOP_202512TO dut (
     .CAL1_OPT(CAL1_OPT),
     .CAL2_OPT(CAL2_OPT),
     .conv_encoder_state(conv_encoder_state),
-    .DEBUG_DATA_LOWER(DEBUG_DATA_LOWER),
-    .S_Bias_ELE_IN(S_Bias_ELE_IN),
-    .S_Bias_OPT_IN(S_Bias_OPT_IN),
     .ENCODE_ENABLE_ext(ENCODE_ENABLE_ext),
-    .SERIAL_OUT(SERIAL_OUT)
+    .SERIAL_OUT(SERIAL_OUT),
+    .SERIAL_OUT_SAKATA(SERIAL_OUT_SAKATA)
 );
 
-// Clock generation (100MHz)
-initial begin
-    CLK = 0;
-    forever #5 CLK = ~CLK;
+// CLOCK generation (100MHz)
+always begin
+    CLK = 1'b1;
+    #50 CLK = 1'b0;
+    #50;
 end
 
-// Test sequence
+// Manchester encoding
+assign MAN = (CLK ^| ORDER);
+
+integer J;
+
 initial begin
-    // Initialize
-    POR = 0;
-    ORDER = 0;
-    unique_low = 2'b00;
-    unique_debug = 0;
-    MAN = 0;
-    DECODER_RST = 0;
-    COMPARATOR_ELE = 0;
-    COMPARATOR_OPT = 0;
-    conv_encoder_state = 0;
-    DEBUG_DATA_LOWER = 4'b0000;
-    S_Bias_ELE_IN = 0;
-    S_Bias_OPT_IN = 0;
-    ENCODE_ENABLE_ext = 0;
-
-    // Release reset
-    #20;
-    POR = 1;
-    #20;
-
     $display("========================================");
-    $display("Address Debug Test Start");
+    $display("TOP_202512TO Testbench");
+    $display("Comparing SERIAL_OUT vs SERIAL_OUT_SAKATA");
     $display("========================================");
 
-    // Test 1: unique_debug = 0, unique_low = 2'b00
-    // Expected: unique = 8'b00000000
-    unique_debug = 0;
-    unique_low = 2'b00;
-    #20;
-    $display("Test 1: unique_debug=%b, unique_low=%b", unique_debug, unique_low);
-    $display("  Expected unique: 8'b00000000");
-    $display("  Actual unique:   8'b%b", dut.unique);
-    if (dut.unique === 8'b00000000)
-        $display("  PASS");
-    else
-        $display("  FAIL");
-
-    // Test 2: unique_debug = 0, unique_low = 2'b01
-    // Expected: unique = 8'b00000001
-    unique_debug = 0;
+    // Initialize signals
+    ORDER = 1'b0;
+    POR = 1'b0;
+    DECODER_RST = 1'b1;
     unique_low = 2'b01;
-    #20;
-    $display("\nTest 2: unique_debug=%b, unique_low=%b", unique_debug, unique_low);
-    $display("  Expected unique: 8'b00000001");
-    $display("  Actual unique:   8'b%b", dut.unique);
-    if (dut.unique === 8'b00000001)
-        $display("  PASS");
-    else
-        $display("  FAIL");
+    unique_debug = 1'b0;
+    COMPARATOR_ELE = 1'b0;
+    COMPARATOR_OPT = 1'b0;
+    conv_encoder_state = 1'b0;
+    ENCODE_ENABLE_ext = 1'b0;
 
-    // Test 3: unique_debug = 0, unique_low = 2'b10
-    // Expected: unique = 8'b00000010
-    unique_debug = 0;
-    unique_low = 2'b10;
-    #20;
-    $display("\nTest 3: unique_debug=%b, unique_low=%b", unique_debug, unique_low);
-    $display("  Expected unique: 8'b00000010");
-    $display("  Actual unique:   8'b%b", dut.unique);
-    if (dut.unique === 8'b00000010)
-        $display("  PASS");
-    else
-        $display("  FAIL");
+    // Release POR
+    #300;
+    POR = 1'b1;
+    #200;
 
-    // Test 4: unique_debug = 0, unique_low = 2'b11
-    // Expected: unique = 8'b00000011
-    unique_debug = 0;
-    unique_low = 2'b11;
-    #20;
-    $display("\nTest 4: unique_debug=%b, unique_low=%b", unique_debug, unique_low);
-    $display("  Expected unique: 8'b00000011");
-    $display("  Actual unique:   8'b%b", dut.unique);
-    if (dut.unique === 8'b00000011)
-        $display("  PASS");
-    else
-        $display("  FAIL");
+    // Setup command for device
+    @(posedge CLK) #delay ORDER = 1'b0; DECODER_RST = 1'b0;
+    #(5*clock);
+    @(posedge CLK) #delay ORDER = 1'b0; DECODER_RST = 1'b1;
 
-    // Test 5: unique_debug = 1, unique_low = 2'b00
-    // Expected: unique = 8'b00111100
-    unique_debug = 1;
-    unique_low = 2'b00;
-    #20;
-    $display("\nTest 5: unique_debug=%b, unique_low=%b", unique_debug, unique_low);
-    $display("  Expected unique: 8'b00111100");
-    $display("  Actual unique:   8'b%b", dut.unique);
-    if (dut.unique === 8'b00111100)
-        $display("  PASS");
-    else
-        $display("  FAIL");
+    command [7:0]     = 8'b0000_0001;  // address (unique_low = 01)
+    command [17:10]   = 8'b1010_0000;  // enable (bit[10]=general, bit[15]=ELE, bit[17]=OPT)
 
-    // Test 6: unique_debug = 1, unique_low = 2'b01
-    // Expected: unique = 8'b00111101
-    unique_debug = 1;
-    unique_low = 2'b01;
-    #20;
-    $display("\nTest 6: unique_debug=%b, unique_low=%b", unique_debug, unique_low);
-    $display("  Expected unique: 8'b00111101");
-    $display("  Actual unique:   8'b%b", dut.unique);
-    if (dut.unique === 8'b00111101)
-        $display("  PASS");
-    else
-        $display("  FAIL");
+    // Electric stimulation P settings
+    {command [37:30],command[27:20]}    = 16'h000A;  // period
+    {command [57:50],command[47:40]}    = 16'h0005;  // width
+    {command [77:70],command[67:60]}    = 16'h0002;  // loop
+    {command [97:90],command[87:80]}    = 16'h0001;  // delay
+    command [107:100]   = 8'b00_1_11111;  // enable & intensity
 
-    // Test 7: unique_debug = 1, unique_low = 2'b10
-    // Expected: unique = 8'b00111110
-    unique_debug = 1;
-    unique_low = 2'b10;
-    #20;
-    $display("\nTest 7: unique_debug=%b, unique_low=%b", unique_debug, unique_low);
-    $display("  Expected unique: 8'b00111110");
-    $display("  Actual unique:   8'b%b", dut.unique);
-    if (dut.unique === 8'b00111110)
-        $display("  PASS");
-    else
-        $display("  FAIL");
+    // Electric stimulation N settings
+    {command [127:120],command[117:110]}    = 16'h000A;  // period
+    {command [147:140],command[137:130]}    = 16'h0005;  // width
+    {command [167:160],command[157:150]}    = 16'h0002;  // loop
+    {command [187:180],command[177:170]}    = 16'h0006;  // delay
+    command [197:190]   = 8'b00_1_11111;  // enable & intensity
 
-    // Test 8: unique_debug = 1, unique_low = 2'b11
-    // Expected: unique = 8'b00111111
-    unique_debug = 1;
-    unique_low = 2'b11;
-    #20;
-    $display("\nTest 8: unique_debug=%b, unique_low=%b", unique_debug, unique_low);
-    $display("  Expected unique: 8'b00111111");
-    $display("  Actual unique:   8'b%b", dut.unique);
-    if (dut.unique === 8'b00111111)
-        $display("  PASS");
-    else
-        $display("  FAIL");
+    // Electric measurement settings
+    {command [217:210],command[207:200]}    = 16'h0000;  // delay
+    command [227:220]   = 8'b0000_1111;
+
+    // Optical stimulation settings
+    {command [247:240],command[237:230]}    = 16'h000A;  // period
+    {command [267:260],command[257:250]}    = 16'h0002;  // width
+    {command [287:280],command[277:270]}    = 16'h0002;  // loop
+    {command [307:300],command[297:290]}    = 16'h0000;  // delay
+    command [317:310]   = 8'b0001_1111;  // intensity
+
+    // Optical measurement settings
+    {command [337:330],command[327:320]}    = 16'h0000;  // delay
+    command [347:340]   = 8'b0000_1111;
+
+    $display("\nSending command to device...");
+
+    // Send command via ORDER signal
+    @(posedge CLK) #delay ORDER = 1'b0; DECODER_RST = 1'b0;
+    @(posedge CLK) #delay ORDER = 1'b1; DECODER_RST = 1'b1;
+    #(10*clock);
+
+    for(J = 0; J < 350; J = J+10) begin
+        @(posedge CLK) #delay; ORDER = 1'b0;
+
+        @(posedge CLK) #delay; ORDER = command[J];
+        @(posedge CLK) #delay; ORDER = command[J+1];
+        @(posedge CLK) #delay; ORDER = command[J+2];
+        @(posedge CLK) #delay; ORDER = command[J+3];
+        @(posedge CLK) #delay; ORDER = command[J+4];
+        @(posedge CLK) #delay; ORDER = command[J+5];
+        @(posedge CLK) #delay; ORDER = command[J+6];
+        @(posedge CLK) #delay; ORDER = command[J+7];
+
+        @(posedge CLK) #delay; ORDER = 1'b1;
+    end
+
+    @(posedge CLK) #delay ORDER = 1'b0;
+    #(10*clock);
+    @(posedge CLK) #delay ORDER = 1'b1;
+    @(posedge CLK) #delay ORDER = 1'b0;
+    #(10*clock);
+
+    $display("Command sent successfully");
+    $display("\nWaiting for measurement cycles...\n");
+
+    // Wait for measurements to complete
+    // S_Bias signals are generated internally by MEASURE modules
+    #2500000;
 
     $display("\n========================================");
-    $display("Address Debug Test Complete");
+    $display("Test Complete");
     $display("========================================");
+    $display("Check waveform for SERIAL_OUT vs SERIAL_OUT_SAKATA comparison");
 
-    #100;
+    #100000;
     $finish;
 end
 
