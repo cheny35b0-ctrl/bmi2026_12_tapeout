@@ -56,6 +56,8 @@ reg ENCODE_ENABLE_ext;
 // Communication control
 wire SERIAL_OUT;
 wire SERIAL_OUT_SAKATA;
+// 短コマンド用 reg
+reg [19:0] trig_cmd;
 
 // Command register
 reg [399:0] command = 400'b0;
@@ -122,12 +124,12 @@ initial begin
     ORDER = 1'b0;
     POR = 1'b0;
     DECODER_RST = 1'b1;
-    unique_low = 2'b01;
-    unique_debug = 1'b0;
+    unique_low = 2'b00;
+    unique_debug = 1'b1;
     COMPARATOR_ELE = 1'b0;
     COMPARATOR_OPT = 1'b0;
-    conv_encoder_state = 1'b0;
-    ENCODE_ENABLE_ext = 1'b0;
+    conv_encoder_state = 1'b1;
+    ENCODE_ENABLE_ext = 1'b1;
 
     // Release POR
     #300;
@@ -139,7 +141,7 @@ initial begin
     #(5*clock);
     @(posedge CLK) #delay ORDER = 1'b0; DECODER_RST = 1'b1;
 
-    command [7:0]     = 8'b0000_0001;  // address (unique_low = 01)
+    command [7:0]     = 8'b0010_1100;  // address (unique_low = 01)
     command [17:10]   = 8'b1010_0000;  // enable (bit[10]=general, bit[15]=ELE, bit[17]=OPT)
 
     // Electric stimulation P settings
@@ -169,7 +171,7 @@ initial begin
 
     // Optical measurement settings
     {command [337:330],command[327:320]}    = 16'h0000;  // delay
-    command [347:340]   = 8'b0000_1111;
+    command [347:340]   = 8'b0000_0111;
 
     $display("\nSending command to device...");
 
@@ -198,6 +200,34 @@ initial begin
     @(posedge CLK) #delay ORDER = 1'b1;
     @(posedge CLK) #delay ORDER = 1'b0;
     #(10*clock);
+
+    // === 2発目: 短コマンドで起動 (bit10=1) ===
+    trig_cmd      = 20'b0;
+    trig_cmd[7:0] = 8'b1111_1111;   // General Address
+    trig_cmd[10]  = 1'b1;            // ← 起動ビット
+
+    @(posedge CLK) #delay ORDER = 1'b1;
+    #(10*clock);
+
+    // 2バイト分送信 (アドレス + bit10=1 byte)
+    for(J = 0; J < 20; J = J+10) begin
+        @(posedge CLK) #delay; ORDER = 1'b0;
+        @(posedge CLK) #delay; ORDER = trig_cmd[J];
+        @(posedge CLK) #delay; ORDER = trig_cmd[J+1];
+        @(posedge CLK) #delay; ORDER = trig_cmd[J+2];
+        @(posedge CLK) #delay; ORDER = trig_cmd[J+3];
+        @(posedge CLK) #delay; ORDER = trig_cmd[J+4];
+        @(posedge CLK) #delay; ORDER = trig_cmd[J+5];
+        @(posedge CLK) #delay; ORDER = trig_cmd[J+6];
+        @(posedge CLK) #delay; ORDER = trig_cmd[J+7];
+        @(posedge CLK) #delay; ORDER = 1'b1;
+    end
+
+    @(posedge CLK) #delay ORDER = 1'b0;
+    #(10*clock);
+    @(posedge CLK) #delay ORDER = 1'b1;
+    @(posedge CLK) #delay ORDER = 1'b0;
+  #(10*clock);
 
     $display("Command sent successfully");
     $display("\nWaiting for measurement cycles...\n");
