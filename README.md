@@ -128,22 +128,45 @@
 - `BMI_testbench_single.v` - システム全体のテストベンチ
 - `6bit counter_tb.v` - 6bitカウンタのテストベンチ
 
+## ディレクトリ構成
+
+```
+T4lab_BMI/
+├── rtl/                  本流の Verilog RTL ソース
+│   ├── top/              トップモジュール（TOP_202512TO.v, COM_CON_TOP.v）
+│   ├── stim/             刺激（STIM.v, ELE_STIM_XOR.v）
+│   ├── measure/          測定（MEASURE.v, ADC_logic.v, offset_calib.v）
+│   ├── comm/             通信・符号化（COM_CON_OUT.v, CONV_ENCODER.v など）
+│   └── common/           汎用カウンタ（counter_{4,8,16}bit.v）
+├── rtl_sakata/           SAKATA 版 RTL
+├── tb/                   テストベンチ
+│   └── filelists/        iverilog 用 filelist（リポジトリルート基準パス）
+├── sim/                  シミュレーション出力（.vcd / .vvp / .sav）
+└── docs/                 設計ドキュメント
+```
+
 ## シミュレーション実行
 
-Icarus Verilogを使用したシミュレーション例：
+Icarus Verilogを使用したシミュレーション例（**リポジトリルートで実行**）：
 
 ```bash
 # 畳み込み符号化器のテスト
-iverilog -o CONV_ENCODER_TB.vvp -c CONV_ENCODER_TB_filelist.txt
-vvp CONV_ENCODER_TB.vvp
+iverilog -o sim/CONV_ENCODER_TB.vvp -c tb/filelists/CONV_ENCODER_TB_filelist.txt
+vvp sim/CONV_ENCODER_TB.vvp
 
 # 通信出力のテスト
-iverilog -o COM_CON_OUT_tb.vvp -c COM_CON_OUT_tb_filelist.txt
-vvp COM_CON_OUT_tb.vvp
+iverilog -o sim/COM_CON_OUT_tb.vvp -c tb/filelists/COM_CON_OUT_tb_filelist.txt
+vvp sim/COM_CON_OUT_tb.vvp
 
-# VCD波形ファイルの生成
-# 出力されたVCDファイルはGTKWaveなどで表示可能
+# システム全体のテスト
+iverilog -o sim/TOP_202512TO_tb.vvp -c tb/filelists/TOP_202512TO_tb_filelist.txt
+vvp sim/TOP_202512TO_tb.vvp
+
+# VCD 波形ファイルは vvp 実行時のカレントディレクトリに出力されるため、
+# sim/ に集めたい場合は `cd sim && vvp ../sim/xxx.vvp` のように実行する
 ```
+
+filelist のパスはリポジトリルート基準で記述されているため、`iverilog` は必ずリポジトリルートから実行してください。
 
 ## ドキュメント
 
