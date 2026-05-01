@@ -1,0 +1,23 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Thu Apr 30 12:35:25 2026
+[*]
+[dumpfile] "/Users/akagiyuusuke/T4lab_BMI/TOP_202512TO_tb.vcd"
+[dumpfile_mtime] "Thu Apr 30 12:28:37 2026"
+[dumpfile_size] 6136239
+[savefile] "/Users/akagiyuusuke/T4lab_BMI/202512TO.sav"
+[timestart] 972312
+[size] 1920 1027
+[pos] -1 -1
+*-10.000000 975500 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[treeopen] TOP_202512TO_tb.
+[sst_width] 255
+[signals_width] 169
+[sst_expanded] 1
+[sst_vpaned_height] 308
+@29
+TOP_202512TO_tb.dut.SERIAL_OUT
+@28
+TOP_202512TO_tb.dut.SERIAL_OUT_SAKATA
+[pattern_trace] 1
+[pattern_trace] 0

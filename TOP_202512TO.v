@@ -64,7 +64,7 @@ module TOP_202512TO(
 //address
 wire [7:0] unique;
 assign unique[7:6] = 2'b00;
-assign unique[5:2] = unique_debug ? 4'b1111 : 4'b0000;
+assign unique[5:2] = unique_debug ? 4'b1011 : 4'b0000;
 assign unique[1:0] = unique_low[1:0];
 
 localparam general = 8'b1111_1111;

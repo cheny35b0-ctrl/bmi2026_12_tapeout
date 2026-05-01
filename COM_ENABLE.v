@@ -1,5 +1,6 @@
 
 module COM_ENABLE(
+     // ADC_STATE : S_BiasのELE/OPTのOR
      input CLK,POR,ADC_STATE,
      input [5:0] DELAY,
      input [1:0] OPERATE,
@@ -12,6 +13,9 @@ module COM_ENABLE(
 localparam none = 3'b000, delay = 3'b001, on = 3'b010, fin = 3'b011;
 
 wire [15:0] clk_div_200,en_last;
+// ADC_edgeの立ち上がりを検出するための信号
+// ADC_edgeは1クロックだけだがこっちはずっと1のまま
+// S_Biasの逆のイメージ
 reg state_EN;
 
 counter_16bit COM_DELAY(.CLK(CLK),.POR(POR),.RST(!state_EN),
@@ -21,6 +25,8 @@ counter_16bit EN_LAST(.CLK(CLK),.POR(POR),.RST(!state_EN),.COUNT_UP(ENABLE),.PER
 
 reg [2:0] state;
 wire [7:0] address_delay;
+// SBEとSBOのどちらかのネガティブエッジを検出するための信号
+// ADC_edge : 変換終了検知用の信号
 reg ADC_delay, ADC_edge;
 
 always@(posedge CLK or negedge POR) begin

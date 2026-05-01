@@ -4,11 +4,14 @@ module MEASURE(
 	input	       POR,
 	input	       RST,
 	input	       CLK,
+	// 計測開始タイミング
 	input	[15:0] DELAY, 
+	// 計測ENABLE
 	input	       OPERATE,
 
 //for ADC_logic 10bit
 	input	COMPARATOR,
+	// ADC変換中high(4.5 us程度)
 	output	S_Bias,
 	output	COMP_CLK,
 	output	S1,
@@ -23,6 +26,7 @@ localparam none = 2'b00, delay = 2'b10, on = 2'b11 ;
 reg	[1:0]	state;	
 wire	[15:0]	delaycnt;	
 wire	[15:0]	msec_count;
+// 計測開始 && 1 msごとに1クロックhigh
 wire adc_start = (state == on) && (msec_count == 16'd0001);
 
 counter_16bit MSEC(
