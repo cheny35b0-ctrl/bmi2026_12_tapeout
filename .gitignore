@@ -35,3 +35,9 @@ simulation/
 *.swp
 *.swo
 .DS_Store
+
+# IDE files
+.idea/
+
+# ModelSim/QuestaSim save files
+*.sav
