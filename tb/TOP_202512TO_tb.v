@@ -55,7 +55,6 @@ reg ENCODE_ENABLE_ext;
 
 // Communication control
 wire SERIAL_OUT;
-wire SERIAL_OUT_SAKATA;
 // 短コマンド用 reg
 reg [19:0] trig_cmd;
 
@@ -98,8 +97,7 @@ TOP_202512TO dut (
     .CAL2_OPT(CAL2_OPT),
     .conv_encoder_state(conv_encoder_state),
     .ENCODE_ENABLE_ext(ENCODE_ENABLE_ext),
-    .SERIAL_OUT(SERIAL_OUT),
-    .SERIAL_OUT_SAKATA(SERIAL_OUT_SAKATA)
+    .SERIAL_OUT(SERIAL_OUT)
 );
 
 // CLOCK generation (100MHz)
@@ -117,7 +115,6 @@ integer J;
 initial begin
     $display("========================================");
     $display("TOP_202512TO Testbench");
-    $display("Comparing SERIAL_OUT vs SERIAL_OUT_SAKATA");
     $display("========================================");
 
     // Initialize signals
@@ -239,7 +236,7 @@ initial begin
     $display("\n========================================");
     $display("Test Complete");
     $display("========================================");
-    $display("Check waveform for SERIAL_OUT vs SERIAL_OUT_SAKATA comparison");
+    $display("Check waveform for SERIAL_OUT");
 
     #100000;
     $finish;

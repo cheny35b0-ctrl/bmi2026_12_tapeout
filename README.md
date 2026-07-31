@@ -138,7 +138,6 @@ T4lab_BMI/
 │   ├── measure/          測定（MEASURE.v, ADC_logic.v, offset_calib.v）
 │   ├── comm/             通信・符号化（COM_CON_OUT.v, CONV_ENCODER.v など）
 │   └── common/           汎用カウンタ（counter_{4,8,16}bit.v）
-├── rtl_sakata/           SAKATA 版 RTL
 ├── tb/                   テストベンチ
 │   └── filelists/        iverilog 用 filelist（リポジトリルート基準パス）
 ├── sim/                  シミュレーション出力（.vcd / .vvp / .sav）
