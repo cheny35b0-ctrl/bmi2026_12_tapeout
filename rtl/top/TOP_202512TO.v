@@ -94,7 +94,8 @@ wire [4:0]   stim_p;
 STIM ELE_P_STIM(
 .CLK(CLK),
 .POR(POR),
-.RST(1'b0),
+//停止中はカウンタを0に保ち、起動のたびに DELAY/PERIOD の起点を揃える
+.RST(~(command[105] & command[14] & command[10])),
 .PERIOD({command[37:30],command[27:20]}),
 .WIDTH({command[57:50],command[47:40]}), 
 .LOOP({command[77:70],command[67:60]}),
@@ -107,7 +108,8 @@ STIM ELE_P_STIM(
 STIM ELE_N_STIM(
 .CLK(CLK),
 .POR(POR),
-.RST(1'b0),
+//停止中はカウンタを0に保ち、起動のたびに DELAY/PERIOD の起点を揃える
+.RST(~(command[195] & command[14] & command[10])),
 .PERIOD({command[127:120],command[117:110]}),
 .WIDTH({command[147:140],command[137:130]}), 
 .LOOP({command[167:160],command[157:150]}),
@@ -132,7 +134,8 @@ ELE_STIM_XOR ELE_STIM_XOR(
 STIM   OPTICAL_STIM(
 .CLK(CLK),
 .POR(POR),
-.RST(1'b0),
+//停止中はカウンタを0に保ち、起動のたびに DELAY/PERIOD の起点を揃える
+.RST(~(command[16] & command[10])),
 .PERIOD({command[247:240],command[237:230]}),
 .WIDTH({command[267:260],command[257:250]}), 
 .LOOP({command[287:280],command[277:270]}),
@@ -147,7 +150,8 @@ wire 	[9:0]	DATA_ELE;
 MEASURE	ELECTRIC_MEAS(
 .CLK(CLK),
 .POR(POR),
-.RST(1'b0),
+//停止中はカウンタを0に保ち、起動のたびに測定位相を揃える
+.RST(~(command[15] & command[10])),
 .DELAY({command[217:210],command[207:200]}),
 .OPERATE(command[15] & command[10]),
 .COMPARATOR(COMPARATOR_ELE),
@@ -169,7 +173,8 @@ wire  [9:0]  DATA_OPT;
 MEASURE	OPTICAL_MEAS(
 .CLK(CLK),
 .POR(POR),
-.RST(1'b0),
+//停止中はカウンタを0に保ち、起動のたびに測定位相を揃える
+.RST(~(command[17] & command[10])),
 .DELAY({command[337:330],command[327:320]}),
 .OPERATE(command[17] & command[10]),
 .COMPARATOR(COMPARATOR_OPT),
