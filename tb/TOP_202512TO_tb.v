@@ -170,8 +170,59 @@ initial begin
     {command [337:330],command[327:320]}    = 16'h0000;  // delay
     command [347:340]   = 8'b0000_0111;
 
+    // 短コマンド (起動トリガ) の内容
+    trig_cmd      = 20'b0;
+    trig_cmd[7:0] = 8'b1111_1111;   // General Address
+    trig_cmd[10]  = 1'b1;            // ← 起動ビット
+
+    // ===================== 1 周目 =====================
+    $display("\n========================================");
+    $display(" 1 周目");
+    $display("========================================");
     $display("\nSending command to device...");
 
+    send_full_command;
+    send_trigger_command;
+
+    $display("Command sent successfully");
+    show_command_state;
+
+    $display("\nWaiting for measurement cycles...\n");
+    // Wait for measurements to complete
+    // S_Bias signals are generated internally by MEASURE modules
+    #2500000;
+
+    // ============ 2 周目 (1 周目と同じコマンドを再送) ============
+    $display("\n========================================");
+    $display(" 2 周目");
+    $display("========================================");
+    $display("\nSending command to device...");
+
+    send_full_command;
+    send_trigger_command;
+
+    $display("Command sent successfully");
+    show_command_state;
+
+    $display("\nWaiting for measurement cycles...\n");
+    #2500000;
+
+    $display("\n========================================");
+    $display("Test Complete");
+    $display("========================================");
+    $display("Check waveform for SERIAL_OUT");
+
+    #100000;
+    $finish;
+end
+
+// ---------------------------------------------------------------
+// コマンド送信タスク
+// ---------------------------------------------------------------
+
+// フル設定コマンド (350bit) を送る
+task send_full_command;
+begin
     // Send command via ORDER signal
     @(posedge CLK) #delay ORDER = 1'b0; DECODER_RST = 1'b0;
     @(posedge CLK) #delay ORDER = 1'b1; DECODER_RST = 1'b1;
@@ -197,12 +248,12 @@ initial begin
     @(posedge CLK) #delay ORDER = 1'b1;
     @(posedge CLK) #delay ORDER = 1'b0;
     #(10*clock);
+end
+endtask
 
-    // === 2発目: 短コマンドで起動 (bit10=1) ===
-    trig_cmd      = 20'b0;
-    trig_cmd[7:0] = 8'b1111_1111;   // General Address
-    trig_cmd[10]  = 1'b1;            // ← 起動ビット
-
+// 短コマンド (アドレス + 起動ビット bit10) を送る
+task send_trigger_command;
+begin
     @(posedge CLK) #delay ORDER = 1'b1;
     #(10*clock);
 
@@ -224,23 +275,19 @@ initial begin
     #(10*clock);
     @(posedge CLK) #delay ORDER = 1'b1;
     @(posedge CLK) #delay ORDER = 1'b0;
-  #(10*clock);
-
-    $display("Command sent successfully");
-    $display("\nWaiting for measurement cycles...\n");
-
-    // Wait for measurements to complete
-    // S_Bias signals are generated internally by MEASURE modules
-    #2500000;
-
-    $display("\n========================================");
-    $display("Test Complete");
-    $display("========================================");
-    $display("Check waveform for SERIAL_OUT");
-
-    #100000;
-    $finish;
+    #(10*clock);
 end
+endtask
+
+// DUT 内の COMMAND レジスタが何を受け取ったかを表示する
+task show_command_state;
+begin
+    $display("  COMMAND state : %b (0:standby / 1:write)", dut.COMMAND.state);
+    $display("  address [7:0] : %h", dut.command[7:0]);
+    $display("  bit10/15/17   : %b / %b / %b",
+             dut.command[10], dut.command[15], dut.command[17]);
+end
+endtask
 
 // VCD dump for waveform viewing
 initial begin
