@@ -30,6 +30,9 @@ simulation/
 *.vcd
 *.vvp
 
+# Simulation logs (scripts/run_tests.sh)
+*.log
+
 # Other temporary files
 *~
 *.swp
