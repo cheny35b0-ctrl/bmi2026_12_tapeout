@@ -30,7 +30,7 @@ always @(posedge CLK or negedge POR) begin//listen
 				state <= standby;
 			else if ((com >= 16'd8 ) && (COMMAND[7:0] != ADDRESS) && (COMMAND[7:0] != general))
 				state <= standby;
-			else if ((com >= 16'd10 ) && (COMMAND[10]==1))
+			else if ((com >= 16'd11 ) && (COMMAND[10]==1))//com=10の時点ではCOMMAND[10]は前回値のため11から判定
 				state <= standby;
 			else
 				state <= write;

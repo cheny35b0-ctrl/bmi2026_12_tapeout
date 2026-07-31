@@ -13,6 +13,7 @@ rtl/comm/SHIFT_REG.v
 rtl/comm/SELECT.v
 rtl/comm/COM_ENABLE.v
 rtl/top/COM_CON_TOP.v
+rtl/comm/CONV_ENCODER.v
 rtl/comm/MEASUREMENT_TYPE_ENCODER.v
 rtl/comm/COM_CON_OUT.v
 rtl/top/TOP_202512TO.v

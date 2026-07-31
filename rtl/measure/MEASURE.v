@@ -11,7 +11,7 @@ module MEASURE(
 
 //for ADC_logic 10bit
 	input	COMPARATOR,
-	// ADC変換中high(4.5 us程度)
+	// ADC変換中high(10MHz動作で45 us程度)
 	output	S_Bias,
 	output	COMP_CLK,
 	output	S1,
