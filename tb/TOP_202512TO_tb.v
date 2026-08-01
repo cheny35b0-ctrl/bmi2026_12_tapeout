@@ -4,6 +4,7 @@ module TOP_202512TO_tb;
 
 parameter delay = 0;
 parameter clock = 100;
+parameter MSEC  = 1000000;   // 1ms を ns で表した値 (10MHz × 10000 カウント)
 
 // 測定待ち時間と、その間に走る測定サイクル数
 // MEASURE.v の MSEC カウンタ (PERIOD=10000) が 10MHz で 1ms を刻み、
@@ -17,6 +18,8 @@ localparam EXPECT_MEAS   = MEAS_WAIT / MEAS_INTERVAL + 1; // = 3
 // 刺激待ち時間。電気刺激N の DELAY が 6ms なので、P/N 両方の発火を
 // 観測するにはそれを超える必要がある
 parameter  STIM_WAIT     = 8000000;                   // [ns]
+// 8 周目の定量検証用。PERIOD=3ms × LOOP=3 + DELAY=1ms で 10ms あれば足りる
+parameter  STIM_TIMING_WAIT = 10000000;               // [ns]
 // build_command が設定する電気刺激P の DELAY (16'h0001 = 1ms)
 parameter  ELE_P_DELAY   = 1000000;                   // [ns]
 
@@ -128,6 +131,71 @@ assign MAN = (CLK ^| ORDER);
 integer J;
 
 // ---------------------------------------------------------------
+// ADC コードの注入
+// ---------------------------------------------------------------
+// ADC_logic は SAR 型で、phase 4〜13 の間に
+//     DATA[13 - phase] <= COMPARATOR
+// と 1bit ずつ確定させる。TB 側で phase に応じた COMPARATOR を返すことで
+// 任意の 10bit 変換結果を作れる。
+// これにより「コンパレータ → ADC → DATA → シリアル出力」まで一気通貫で検証できる。
+// (以前は COMPARATOR を 0 固定にしていたため、この経路が検証できていなかった)
+reg [9:0] adc_code_ele;
+reg [9:0] adc_code_opt;
+
+// 自機アドレス。TOP_202512TO.v の unique 生成と同じ式を TB 側で独立に書いている
+wire [7:0] unique_addr = {2'b00, unique_debug ? 4'b1011 : 4'b0000, unique_low};
+
+// アドレス不一致テスト用に送信前の command を退避する
+reg [399:0] cmd_before;
+
+wire [7:0] ph_ele = dut.ELECTRIC_MEAS.ADC_logic.phase;
+wire [7:0] ph_opt = dut.OPTICAL_MEAS.ADC_logic.phase;
+
+always @(*) begin
+    if ((ph_ele >= 8'd4) && (ph_ele <= 8'd13))
+        COMPARATOR_ELE = adc_code_ele[8'd13 - ph_ele];
+    else
+        COMPARATOR_ELE = 1'b0;
+end
+
+always @(*) begin
+    if ((ph_opt >= 8'd4) && (ph_opt <= 8'd13))
+        COMPARATOR_OPT = adc_code_opt[8'd13 - ph_opt];
+    else
+        COMPARATOR_OPT = 1'b0;
+end
+
+// ---------------------------------------------------------------
+// SERIAL_OUT のフレーム取り込み
+// ---------------------------------------------------------------
+// COM_CON_OUT_tb と同じ方式で、送信中の comcon_out 値をインデックスにして
+// SERIAL_OUT を並べ直す。
+wire [2:0] ser_state  = dut.COM_CON_OUT.COM_CON_TOP.SELECT.state;
+wire [7:0] ser_comcon = dut.COM_CON_OUT.COM_CON_TOP.SELECT.comcon_out;
+wire       ser_enable = dut.COM_CON_OUT.COM_CON_TOP.ENABLE;
+wire       ser_clk5   = dut.COM_CON_OUT.COM_CON_TOP.CLK5;
+
+// OUT を comcon_out 値で読むときのフィールド位置
+localparam F_PRE_LO  = 2,   F_PRE_HI  = 34;   // スタートカウンタ
+localparam F_ADDR_LO = 35,  F_ADDR_HI = 42;   // ADDRESS 8bit (LSB first)
+localparam F_TYPE_LO = 43,  F_TYPE_HI = 44;   // TYPE 2bit    (LSB first)
+localparam F_DATA_LO = 45,  F_DATA_HI = 64;   // DATA 20bit   (LSB first)
+localparam F_SOFF_LO = 65,  F_SOFF_HI = 67;   // ストップ 3bit (符号化OFF)
+localparam F_ENC_LO  = 35,  F_ENC_HI  = 98;   // 符号化データ 64bit
+localparam F_SON_LO  = 99,  F_SON_HI  = 101;  // ストップ 3bit (符号化ON)
+
+localparam [19:0] DEBUG_TEST_DATA = 20'h7B3A9;   // COM_CON_OUT.v の localparam と同じ
+
+// ENABLE はフレーム送出後も続き comcon_out が折り返すため、
+// 各インデックス最初の 1 回だけ採る (末尾の 0 で先頭が潰れるのを防ぐ)
+reg out_at [0:127];
+integer ci;
+
+always @(posedge CLK)
+    if (ser_clk5 && ser_enable && (ser_comcon < 8'd128) && (out_at[ser_comcon] === 1'bx))
+        out_at[ser_comcon] = SERIAL_OUT;
+
+// ---------------------------------------------------------------
 // セルフチェック
 // ---------------------------------------------------------------
 integer checks = 0;   // 実行したチェック数
@@ -152,11 +220,33 @@ integer sbias_opt_bad_gap = 0;
 time    stim_op_start    = 0;
 integer p_stim_delay     = 0;
 
+// 刺激パルスの幅・周期の実測用
+time    p_stim_rise_t    = 0;   // 直近の立ち上がり時刻
+integer p_stim_width     = 0;   // 1 発目のパルス幅 [ns]
+integer p_stim_period    = 0;   // 1 発目→2 発目の間隔 [ns]
+
 // build_command が組み立てた値。expect_full_command が期待値として参照する
 reg [7:0]  exp_addr;
 reg [7:0]  exp_enable;
 reg [15:0] exp_ele_p_period;
 reg [15:0] exp_ele_p_width;
+reg [15:0] exp_ele_p_loop;
+reg [15:0] exp_ele_p_delay;
+reg        exp_encode_bit;   // command[343]
+
+// 1 フレーム分の期待値と復元値
+reg        exp_encode_on;    // command[343] | ENCODE_ENABLE_ext
+reg [19:0] exp_frame_data;
+reg [1:0]  exp_frame_type;
+reg [31:0] exp_frame_enc_in;
+reg [63:0] exp_frame_enc_out;
+reg [7:0]  got_frame_addr;
+reg [1:0]  got_frame_type;
+reg [19:0] got_frame_data;
+reg [63:0] got_frame_enc;
+integer    frame_seen;
+integer    frame_preamble_bad;
+integer    frame_stop_bad;
 
 // メッセージをタスク引数で渡すと日本語が化けるためマクロで実装している
 `define CHECK(cond, msg) \
@@ -196,8 +286,46 @@ always @(posedge dut.ELE_P_STIM.OPERATE) stim_op_start = $time;
 always @(posedge P_STIM_EN) begin
     if (p_stim_en_count == 0 && stim_op_start != 0)
         p_stim_delay = $time - stim_op_start;
+    if (p_stim_en_count == 1)
+        p_stim_period = $time - p_stim_rise_t;   // 1 発目→2 発目の間隔 = PERIOD
+    p_stim_rise_t   = $time;
     p_stim_en_count = p_stim_en_count + 1;
 end
+
+// 1 発目のパルス幅 = WIDTH
+always @(negedge P_STIM_EN)
+    if (p_stim_en_count == 1)
+        p_stim_width = $time - p_stim_rise_t;
+
+// 参照モデル: 畳み込み符号化 (K=3, rate 1/2, G0=7(111), G1=5(101), MSB first)
+function [63:0] golden_encode(input [31:0] d);
+    integer k;
+    reg s0, s1, b;
+begin
+    s0 = 1'b0;
+    s1 = 1'b0;
+    golden_encode = 64'b0;
+    for (k = 0; k < 32; k = k + 1) begin
+        b = d[31 - k];
+        golden_encode[k*2]     = b ^ s0 ^ s1;   // c0
+        golden_encode[k*2 + 1] = b ^ s1;        // c1
+        s1 = s0;
+        s0 = b;
+    end
+end
+endfunction
+
+// COM_CON_TOP.v の encoder_input と同じ並べ替え (各フィールドのビット順が反転する)
+function [31:0] pack_frame(input [7:0] a, input [1:0] t, input [19:0] d);
+    integer k;
+begin
+    for (k = 0; k < 8;  k = k + 1) pack_frame[31 - k] = a[k];
+    for (k = 0; k < 2;  k = k + 1) pack_frame[23 - k] = t[k];
+    for (k = 0; k < 20; k = k + 1) pack_frame[21 - k] = d[k];
+    pack_frame[1] = 1'b0;
+    pack_frame[0] = 1'b0;
+end
+endfunction
 
 initial begin
     $display("========================================");
@@ -210,10 +338,14 @@ initial begin
     DECODER_RST = 1'b1;
     unique_low = 2'b00;
     unique_debug = 1'b1;
-    COMPARATOR_ELE = 1'b0;
-    COMPARATOR_OPT = 1'b0;
     conv_encoder_state = 1'b1;
     ENCODE_ENABLE_ext = 1'b1;
+
+    // ADC に変換させる 10bit コード (COMPARATOR 経由で注入される)
+    adc_code_ele = 10'b10_0110_1011;
+    adc_code_opt = 10'b01_1100_0101;
+
+    for (ci = 0; ci < 128; ci = ci + 1) out_at[ci] = 1'bx;
 
     // Release POR
     #300;
@@ -232,11 +364,15 @@ initial begin
 
     // ===================== 1 周目 =====================
     $display("\n========================================");
-    $display(" 1 周目");
+    $display(" 1 周目 (符号化 ON = 外部パッド / ADC 実測値)");
     $display("========================================");
     $display("\nSending command to device...");
 
-    build_command(8'h2c, 8'b1010_0000, 16'h000A, 16'h0005);
+    // 外部パッドで符号化 ON。conv_encoder_state=0 なので
+    // デバッグ固定値ではなく ADC の実測値がシリアル出力に載る
+    conv_encoder_state = 1'b0;
+    ENCODE_ENABLE_ext  = 1'b1;
+    build_command(8'h2c, 8'b1010_0000, 16'h000A, 16'h0005, 16'h0002, 16'h0001, 1'b1, 1'b0);
     reset_counters;
     send_full_command;
 
@@ -258,13 +394,20 @@ initial begin
     $display("[1周目] 動作結果");
     expect_measurement;
 
+    $display("\n[1周目] シリアル出力フレームの検証");
+    capture_frame;
+    set_frame_expect;
+    expect_frame;
+
     // ============ 2 周目 (1 周目と同じコマンドを再送) ============
     $display("\n========================================");
     $display(" 2 周目");
     $display("========================================");
     $display("\nSending command to device...");
 
-    build_command(8'h2c, 8'b1010_0000, 16'h000A, 16'h0005);
+    conv_encoder_state = 1'b0;
+    ENCODE_ENABLE_ext  = 1'b1;
+    build_command(8'h2c, 8'b1010_0000, 16'h000A, 16'h0005, 16'h0002, 16'h0001, 1'b1, 1'b0);
     reset_counters;
     send_full_command;
 
@@ -285,15 +428,25 @@ initial begin
     $display("[2周目] 動作結果");
     expect_measurement;
 
+    $display("\n[2周目] シリアル出力フレームの検証");
+    capture_frame;
+    set_frame_expect;
+    expect_frame;
+
     // ====== 3 周目 (設定値を変えて再送し、変更が反映されるか) ======
     $display("\n========================================");
-    $display(" 3 周目 (設定値を変更して再送)");
+    $display(" 3 周目 (設定値を変更して再送 / 符号化 OFF)");
     $display("========================================");
     $display("\nSending command to device...");
 
+    // 外部パッドを 0 に落とし、command[343]=0 と合わせて符号化 OFF にする。
+    // ENCODE_ENABLE_ext を 1 に固定していた頃は command[343] の効果が
+    // 一度も観測できなかったため、ここで非符号化パスを通す
+    conv_encoder_state = 1'b0;
+    ENCODE_ENABLE_ext  = 1'b0;
     // PERIOD/WIDTH を 1・2 周目と別の値にする。
     // 設定の上書きに失敗すると expect_full_command が古い値を検出して FAIL する
-    build_command(8'h2c, 8'b1010_0000, 16'h0014, 16'h0008);
+    build_command(8'h2c, 8'b1010_0000, 16'h0014, 16'h0008, 16'h0002, 16'h0001, 1'b1, 1'b0);
     reset_counters;
     send_full_command;
 
@@ -313,6 +466,11 @@ initial begin
     $display("[3周目] 動作結果");
     expect_measurement;
 
+    $display("\n[3周目] シリアル出力フレームの検証 (符号化 OFF パス)");
+    capture_frame;
+    set_frame_expect;
+    expect_frame;
+
     // ============ 4 周目 (刺激 ON / 計測 OFF) ============
     $display("\n========================================");
     $display(" 4 周目 (刺激 ON / 計測 OFF)");
@@ -320,7 +478,7 @@ initial begin
     $display("\nSending command to device...");
 
     // bit17=0:光測定OFF bit16=1:光刺激ON bit15=0:電気測定OFF bit14=1:電気刺激ON
-    build_command(8'h2c, 8'b0101_0000, 16'h000A, 16'h0005);
+    build_command(8'h2c, 8'b0101_0000, 16'h000A, 16'h0005, 16'h0002, 16'h0001, 1'b1, 1'b0);
     reset_counters;
     send_full_command;
 
@@ -347,7 +505,7 @@ initial begin
     $display("========================================");
     $display("\nSending command to device...");
 
-    build_command(8'h2c, 8'b0101_0000, 16'h000A, 16'h0005);
+    build_command(8'h2c, 8'b0101_0000, 16'h000A, 16'h0005, 16'h0002, 16'h0001, 1'b1, 1'b0);
     reset_counters;
     send_full_command;
 
@@ -366,6 +524,86 @@ initial begin
 
     $display("[5周目] 動作結果");
     expect_stimulation;
+
+    // ====== 6 周目 (command[343] で符号化 ON / デバッグ固定データ) ======
+    // ENCODE_ENABLE_ext は 0 のまま。符号化が有効になるなら command[343] の効果
+    $display("\n========================================");
+    $display(" 6 周目 (符号化 ON = command[343] / デバッグ固定データ)");
+    $display("========================================");
+    $display("\nSending command to device...");
+
+    conv_encoder_state = 1'b1;      // COM_CON_OUT の DEBUG_TEST_DATA を載せる
+    ENCODE_ENABLE_ext  = 1'b0;      // 外部パッドは OFF
+    build_command(8'h2c, 8'b1010_0000, 16'h000A, 16'h0005, 16'h0002, 16'h0001, 1'b1, 1'b1);
+    reset_counters;
+    send_full_command;
+
+    $display("\n[6周目] フル設定コマンドの受信結果");
+    expect_full_command;
+    `CHECK(dut.command[343] == 1'b1, "符号化ビット command[343] が 1 で受信された")
+
+    send_trigger_command;
+
+    $display("\n[6周目] 短コマンド (起動トリガ) の受信結果");
+    expect_trigger_command;
+
+    show_command_state;
+
+    $display("\nWaiting for measurement cycles...\n");
+    #(MEAS_WAIT);
+
+    $display("[6周目] 動作結果");
+    expect_measurement;
+
+    $display("\n[6周目] シリアル出力フレームの検証 (command[343] による符号化)");
+    capture_frame;
+    set_frame_expect;
+    expect_frame;
+
+    // ============ 7 周目 (他デバイス宛てコマンドの拒否) ============
+    $display("\n========================================");
+    $display(" 7 周目 (他デバイス宛てコマンドを無視するか)");
+    $display("========================================");
+    $display("\nSending command to another device (0x2d)...");
+
+    cmd_before = dut.command;
+    reset_counters;
+    // 自機アドレス 0x2c でも general 0xff でもないアドレスへ送る
+    build_command(8'h2d, 8'b1010_0000, 16'hBEEF, 16'hCAFE, 16'h0009, 16'h0007, 1'b1, 1'b1);
+    send_full_command;
+
+    $display("\n[7周目] 受信結果");
+    $display("  (書き込み到達点 com=%0d / 自機アドレス=%h)", com_peak, unique_addr);
+    expect_address_reject;
+
+    // ====== 8 周目 (刺激パルスの幅・周期・回数の定量検証) ======
+    // N極を無効にして P極だけを単独で観測する。短いパラメータで 3 発撃たせる
+    $display("\n========================================");
+    $display(" 8 周目 (刺激パルスの定量検証)");
+    $display("========================================");
+    $display("\nSending command to device...");
+
+    // bit16=1:光刺激ON bit14=1:電気刺激ON / 測定は OFF
+    // PERIOD=3ms WIDTH=1ms LOOP=3 DELAY=1ms, N極 OPERATE=0
+    build_command(8'h2c, 8'b0101_0000, 16'h0003, 16'h0001, 16'h0003, 16'h0001, 1'b0, 1'b0);
+    reset_counters;
+    send_full_command;
+
+    $display("\n[8周目] フル設定コマンドの受信結果");
+    expect_full_command;
+
+    send_trigger_command;
+
+    $display("\n[8周目] 短コマンド (起動トリガ) の受信結果");
+    expect_trigger_command;
+
+    show_command_state;
+
+    $display("\nWaiting for stimulation...\n");
+    #(STIM_TIMING_WAIT);
+
+    $display("[8周目] 動作結果");
+    expect_stim_timing;
 
     // ===================== 結果サマリ =====================
     $display("\n========================================");
@@ -397,12 +635,17 @@ end
 //   ele_p_width  : 電気刺激P の WIDTH
 // これ以外のパラメータは固定値。expect_full_command が参照する期待値も同時に保存する
 task build_command(input [7:0] addr, input [7:0] enable_bits,
-                   input [15:0] ele_p_period, input [15:0] ele_p_width);
+                   input [15:0] ele_p_period, input [15:0] ele_p_width,
+                   input [15:0] ele_p_loop,   input [15:0] ele_p_delay,
+                   input ele_n_operate,       input encode_bit);
 begin
     exp_addr         = addr;
     exp_enable       = enable_bits;
     exp_ele_p_period = ele_p_period;
     exp_ele_p_width  = ele_p_width;
+    exp_ele_p_loop   = ele_p_loop;
+    exp_ele_p_delay  = ele_p_delay;
+    exp_encode_bit   = encode_bit;
 
     command = 400'b0;
 
@@ -412,8 +655,8 @@ begin
     // Electric stimulation P settings
     {command[37:30], command[27:20]} = ele_p_period;
     {command[57:50], command[47:40]} = ele_p_width;
-    {command[77:70], command[67:60]} = 16'h0002;      // loop
-    {command[97:90], command[87:80]} = 16'h0001;      // delay
+    {command[77:70], command[67:60]} = ele_p_loop;
+    {command[97:90], command[87:80]} = ele_p_delay;
     command[107:100] = 8'b00_1_11111;                 // enable & intensity
 
     // Electric stimulation N settings
@@ -421,7 +664,8 @@ begin
     {command[147:140], command[137:130]} = 16'h0005;  // width
     {command[167:160], command[157:150]} = 16'h0002;  // loop
     {command[187:180], command[177:170]} = 16'h0006;  // delay
-    command[197:190] = 8'b00_1_11111;                 // enable & intensity
+    // bit195 = N極の個別 OPERATE。0 にすると P極だけを単独で観測できる
+    command[197:190] = {2'b00, ele_n_operate, 5'b11111};
 
     // Electric measurement settings
     {command[217:210], command[207:200]} = 16'h0000;  // delay
@@ -436,7 +680,8 @@ begin
 
     // Optical measurement settings
     {command[337:330], command[327:320]} = 16'h0000;  // delay
-    command[347:340] = 8'b0000_0111;
+    // bit343 = ENCODE_ENABLE (畳み込み符号化 ON/OFF)
+    command[347:340] = {4'b0000, encode_bit, 3'b111};
 end
 endtask
 
@@ -493,6 +738,131 @@ begin
     // 起動から最初の刺激までが設定 DELAY どおりか (state 遷移の内部遅延ぶん数クロック分の余裕を見る)
     `CHECK(p_stim_delay >= ELE_P_DELAY && p_stim_delay <= ELE_P_DELAY + 5*clock,
            "電気刺激P の DELAY が設定値どおり")
+end
+endtask
+
+// 刺激の定量検証: パルス幅 = WIDTH, 周期 = PERIOD, 発火回数 = LOOP
+// (N極を無効にして P極だけを単独で観測している前提)
+//
+// 幅・周期とも実測は設定値ちょうど -1クロック になる。
+// STIM.v は state が on へ遷移してから STIM を立てるため、1 発目の立ち上がりだけが
+// msec カウンタの刻みより 1 クロック遅れる。2 発目以降は純粋にカウンタ駆動なので、
+// 1 発目起点で測る幅と周期はどちらも 1 クロックぶん短く出る。
+// 仕様どおりかを見たいので、許容幅は 1 クロックに絞る。
+task expect_stim_timing;
+begin
+    $display("  (パルス幅   実測 %0d ns / 設定 WIDTH=%0d ms)",  p_stim_width,  exp_ele_p_width);
+    $display("  (パルス周期 実測 %0d ns / 設定 PERIOD=%0d ms)", p_stim_period, exp_ele_p_period);
+    $display("  (発火回数   実測 %0d 回 / 設定 LOOP=%0d)",      p_stim_en_count, exp_ele_p_loop);
+    `CHECK(p_stim_width  >= exp_ele_p_width  * MSEC - clock &&
+           p_stim_width  <= exp_ele_p_width  * MSEC,
+           "電気刺激P のパルス幅が WIDTH どおり (±1clk)")
+    `CHECK(p_stim_period >= exp_ele_p_period * MSEC - clock &&
+           p_stim_period <= exp_ele_p_period * MSEC,
+           "電気刺激P の周期が PERIOD どおり (±1clk)")
+    `CHECK(p_stim_en_count == exp_ele_p_loop,         "電気刺激P の発火回数が LOOP どおり")
+    `CHECK(n_stim_en_count == 0,                      "N極 OPERATE=0 のとき N極は発火しない")
+end
+endtask
+
+// ---------------------------------------------------------------
+// シリアル出力フレームの検証
+// ---------------------------------------------------------------
+
+// 次の 1 フレームを取り込む
+task capture_frame;
+    integer n;
+begin
+    // いま送信中なら終わるまで待つ
+    n = 0;
+    while ((ser_enable !== 1'b0) && (n < 100000)) begin @(posedge CLK); n = n + 1; end
+
+    // 送信していない間に観測をクリアする (キャプチャ用 always とは競合しない)
+    for (ci = 0; ci < 128; ci = ci + 1) out_at[ci] = 1'bx;
+
+    // 次のフレーム開始を待つ
+    n = 0;
+    while ((ser_enable !== 1'b1) && (n < 200000)) begin @(posedge CLK); n = n + 1; end
+    frame_seen = (ser_enable === 1'b1) ? 1 : 0;
+
+    // フレーム終了を待つ
+    n = 0;
+    while ((ser_enable !== 1'b0) && (n < 5000)) begin @(posedge CLK); n = n + 1; end
+end
+endtask
+
+// このフレームの期待値を確定させる
+task set_frame_expect;
+begin
+    exp_encode_on     = exp_encode_bit | ENCODE_ENABLE_ext;
+    exp_frame_data    = conv_encoder_state ? DEBUG_TEST_DATA : {adc_code_opt, adc_code_ele};
+    exp_frame_type    = {exp_enable[7], exp_enable[5]};   // {command[17], command[15]}
+    exp_frame_enc_in  = pack_frame(unique_addr, exp_frame_type, exp_frame_data);
+    exp_frame_enc_out = golden_encode(exp_frame_enc_in);
+end
+endtask
+
+// 取り込んだフレームの中身を検証する
+task expect_frame;
+begin
+    // 日本語文字列を三項演算子で選ぶと幅が揃わず化けるので if で分ける
+    if (conv_encoder_state)
+        $display("  (符号化 %0s / データ源 デバッグ固定値)", exp_encode_on ? "ON" : "OFF");
+    else
+        $display("  (符号化 %0s / データ源 ADC 実測値)",     exp_encode_on ? "ON" : "OFF");
+
+    `CHECK(frame_seen == 1, "測定後にシリアルフレームが送出された")
+
+    // ADC が COMPARATOR パターンどおりの符号を出したか
+    `CHECK(dut.DATA_ELE === adc_code_ele, "電気測定 ADC が注入コードどおりに変換した")
+    `CHECK(dut.DATA_OPT === adc_code_opt, "光測定 ADC が注入コードどおりに変換した")
+
+    // プリアンブル
+    frame_preamble_bad = 0;
+    for (ci = F_PRE_LO + 1; ci <= F_PRE_HI; ci = ci + 1)
+        if (out_at[ci] === out_at[ci-1]) frame_preamble_bad = frame_preamble_bad + 1;
+    `CHECK(frame_preamble_bad == 0, "プリアンブル 32bit が 1bit ごとに反転している")
+
+    if (exp_encode_on) begin
+        for (ci = 0; ci < 64; ci = ci + 1) got_frame_enc[ci] = out_at[F_ENC_LO + ci];
+        $display("  (符号化入力   %08h)", exp_frame_enc_in);
+        $display("  (符号化データ 期待 %016h / 実測 %016h)", exp_frame_enc_out, got_frame_enc);
+        `CHECK(got_frame_enc === exp_frame_enc_out,
+               "符号化データ 64bit が参照モデルと一致")
+        frame_stop_bad = 0;
+        for (ci = F_SON_LO; ci <= F_SON_HI; ci = ci + 1)
+            if (out_at[ci] !== 1'b1) frame_stop_bad = frame_stop_bad + 1;
+        `CHECK(frame_stop_bad == 0, "ストップビット 3bit がすべて 1")
+    end
+    else begin
+        for (ci = 0; ci < 8;  ci = ci + 1) got_frame_addr[ci] = out_at[F_ADDR_LO + ci];
+        for (ci = 0; ci < 2;  ci = ci + 1) got_frame_type[ci] = out_at[F_TYPE_LO + ci];
+        for (ci = 0; ci < 20; ci = ci + 1) got_frame_data[ci] = out_at[F_DATA_LO + ci];
+        $display("  (ADDRESS 期待 %b / 実測 %b)",   unique_addr,    got_frame_addr);
+        $display("  (TYPE    期待 %b / 実測 %b)",   exp_frame_type, got_frame_type);
+        $display("  (DATA    期待 %05h / 実測 %05h)", exp_frame_data, got_frame_data);
+        `CHECK(got_frame_addr === unique_addr,     "ADDRESS 8bit が自機アドレスで出力された")
+        `CHECK(got_frame_type === exp_frame_type,  "TYPE 2bit がイネーブル設定どおり")
+        `CHECK(got_frame_data === exp_frame_data,  "DATA 20bit が ADC 実測値どおり")
+        frame_stop_bad = 0;
+        for (ci = F_SOFF_LO; ci <= F_SOFF_HI; ci = ci + 1)
+            if (out_at[ci] !== 1'b1) frame_stop_bad = frame_stop_bad + 1;
+        `CHECK(frame_stop_bad == 0, "ストップビット 3bit がすべて 1")
+    end
+end
+endtask
+
+// 他デバイス宛てコマンドを無視するか
+// COMMAND.v はアドレス 8bit を受け切った時点 (com >= 8) で不一致を判定して中断するため、
+// 先頭バイトは書き込まれるがパラメータ領域 (bit20 以降) は変化しない
+task expect_address_reject;
+begin
+    `CHECK(dut.COMMAND.state == 1'b0,
+           "他デバイス宛てコマンドの後も standby へ戻っている")
+    `CHECK(dut.command[399:20] === cmd_before[399:20],
+           "他デバイス宛てコマンドでパラメータ領域が書き換わらない")
+    `CHECK(com_peak < 350,
+           "アドレス不一致で書き込みが途中で打ち切られた")
 end
 endtask
 
@@ -575,6 +945,10 @@ begin
     sbias_opt_bad_gap = 0;
     stim_op_start     = 0;
     p_stim_delay      = 0;
+    p_stim_rise_t     = 0;
+    p_stim_width      = 0;
+    p_stim_period     = 0;
+    frame_seen        = 0;
 end
 endtask
 
