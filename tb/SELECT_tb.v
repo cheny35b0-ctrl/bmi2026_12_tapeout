@@ -46,6 +46,12 @@ reg [63:0] payload;      // SHIFT_REG が流すつもりのデータ
 wire OUT;
 wire [2:0] state;
 
+// 周辺モジュールの代役が駆動する信号 (ロジックは下方に記述)。
+// DUT のインスタンス化より前に宣言しないと implicit wire 扱いになり、
+// シミュレータによっては二重宣言エラーになる
+reg C_OUT1;
+reg S_OUT;
+
 // ---------------------------------------------------------------
 // CLK5 生成 (COM_ENABLE.v と同じ 2分周パルス)
 // ---------------------------------------------------------------
@@ -87,7 +93,6 @@ end
 // ---------------------------------------------------------------
 
 // COUNTER_COMCON.v 相当: counter 状態で CLK5 ごとにトグルしてプリアンブルを作る
-reg C_OUT1;
 always @(posedge CLK or negedge POR) begin
     if (!POR)
         C_OUT1 <= 1'b0;
@@ -98,7 +103,6 @@ always @(posedge CLK or negedge POR) begin
 end
 
 // SHIFT_REG.v 相当: 既知のペイロードを LSB first で S_OUT に流す
-reg S_OUT;
 reg [63:0] tb_shift;
 always @(posedge CLK or negedge POR) begin
     if (!POR)

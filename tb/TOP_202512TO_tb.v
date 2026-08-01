@@ -297,6 +297,11 @@ always @(negedge P_STIM_EN)
     if (p_stim_en_count == 1)
         p_stim_width = $time - p_stim_rise_t;
 
+// !! 注意: この参照モデル (golden_encode / ビット詰め替え関数) は
+//    CONV_ENCODER_TB.v / COM_CON_OUT_tb.v / TOP_202512TO_tb.v の 3 ファイルに
+//    同じものがコピーされている。RTL 実装のバグが期待値へコピーされるのを防ぐため、
+//    意図的に共有ヘッダ化していない。
+//    生成多項式やビット順の仕様を変えるときは 3 ファイルすべてを直すこと。
 // 参照モデル: 畳み込み符号化 (K=3, rate 1/2, G0=7(111), G1=5(101), MSB first)
 function [63:0] golden_encode(input [31:0] d);
     integer k;
@@ -961,6 +966,15 @@ begin
              dut.command[10], dut.command[15], dut.command[17]);
 end
 endtask
+
+// 全体ウォッチドッグ
+// 待ちはすべて固定時間か上限付き while ループなので現状ハングする経路は無いが、
+// 将来の RTL 変更で止まったときに CI が無限に待たないよう上限を設ける。
+// 通常は約 38ms で $finish に到達する
+initial begin
+    #60000000;
+    $fatal(1, "TESTBENCH TIMEOUT (シミュレーションが終わらなかった)");
+end
 
 // VCD dump for waveform viewing
 initial begin
