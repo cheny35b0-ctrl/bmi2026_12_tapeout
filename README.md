@@ -122,11 +122,23 @@
 
 以下のテストベンチが用意されています：
 
-- `CONV_ENCODER_TB.v` - 畳み込み符号化器のテストベンチ
-- `COM_CON_OUT_tb.v` - 通信出力のテストベンチ
-- `SELECT_tb.v` - データセレクタのテストベンチ
-- `BMI_testbench_single.v` - システム全体のテストベンチ
-- `6bit counter_tb.v` - 6bitカウンタのテストベンチ
+| テストベンチ | 対象 | 検証項目数 | 判定 |
+|---|---|---:|---|
+| `CONV_ENCODER_TB.v` | 畳み込み符号化器 単体 | 62 | セルフチェック |
+| `SELECT_tb.v` | シリアル出力セレクタ 単体 | 47 | セルフチェック |
+| `COM_CON_OUT_tb.v` | 通信ブロック結合 | 70 | セルフチェック |
+| `TOP_202512TO_tb.v` | システム全体 | 136 | セルフチェック |
+| `BMI_testbench_single.v` | システム全体 | — | 波形ダンプのみ |
+
+**各テストベンチが何をどこまで検証しているかの一覧は
+[docs/TEST_SPEC.md](docs/TEST_SPEC.md) を参照してください。**
+未検証項目（カバレッジの穴）と既知の不具合もそこにまとめてあります。
+
+全テストベンチをまとめて実行するには:
+
+```sh
+./scripts/run_tests.sh
+```
 
 ## ディレクトリ構成
 
@@ -170,6 +182,7 @@ filelist のパスはリポジトリルート基準で記述されているた�
 ## ドキュメント
 
 - [docs/convolutional_encoder_design.md](docs/convolutional_encoder_design.md) - 畳み込み符号化機能の詳細設計ドキュメント
+- [docs/TEST_SPEC.md](docs/TEST_SPEC.md) - テスト仕様書（各テストベンチの検証項目一覧・カバレッジの穴・既知の不具合）
 - [docs/REVIEW.md](docs/REVIEW.md) - レビューガイドライン
 
 ## 通信プロトコル
