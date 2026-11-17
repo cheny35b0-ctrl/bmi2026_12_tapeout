@@ -1,4 +1,0 @@
-rtl/common/counter_8bit.v
-rtl/common/counter_4bit.v
-rtl/comm/SELECT.v
-tb/SELECT_tb.v
