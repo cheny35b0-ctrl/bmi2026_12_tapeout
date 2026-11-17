@@ -1,1 +1,0 @@
-C:/altera/24.1std/questa_fse/win64/VisualizerRls/bin/viscom.exe -nolock -quiet -jmem_size 344352 work.BMI_testbench_single -quiet -auto_acc_if_foreign -work work -L cyclonev_ver -allow_unnamed -o _opt -id 1-a0b3395c8faa-68e34964-cc-584c
