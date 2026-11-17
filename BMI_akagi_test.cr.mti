@@ -1,0 +1,155 @@
+C:/Users/y_akagi2025/AppData/Local/quartus/MEASURE.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/MEASURE.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module MEASURE
+
+Top level modules:
+	MEASURE
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/TOP_202506TO.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/TOP_202506TO.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module TOP_202506TO
+
+Top level modules:
+	TOP_202506TO
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/6bit_counter.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/6bit_counter.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module COUNTER
+
+Top level modules:
+	COUNTER
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/COM_ENABLE.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/COM_ENABLE.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module COM_ENABLE
+
+Top level modules:
+	COM_ENABLE
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/counter_16bit.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/counter_16bit.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module counter_16bit
+
+Top level modules:
+	counter_16bit
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/COUNTER_COMCON.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/COUNTER_COMCON.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module COUNTER_COMCON
+
+Top level modules:
+	COUNTER_COMCON
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/SELECT_2in.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/SELECT_2in.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module SELECT_2in
+
+Top level modules:
+	SELECT_2in
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/MAN_DECODER_v2.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/MAN_DECODER_v2.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module MAN_DECODER_v2
+
+Top level modules:
+	MAN_DECODER_v2
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/COM_CON_TOP.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/COM_CON_TOP.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module COM_CON_TOP
+
+Top level modules:
+	COM_CON_TOP
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/offset_calib.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/offset_calib.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module offset_calib
+
+Top level modules:
+	offset_calib
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/MAN_DECODER.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/MAN_DECODER.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module MAN_DECODER
+
+Top level modules:
+	MAN_DECODER
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/ELE_STIM_XOR.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/ELE_STIM_XOR.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module ELE_STIM_XOR
+
+Top level modules:
+	ELE_STIM_XOR
+
+} {} {}} {C:/Users/y_akagi2025/AppData/Local/quartus/6bit counter_tb.v} {1 {vlog -work work -vopt -stats=none {C:/Users/y_akagi2025/AppData/Local/quartus/6bit counter_tb.v}
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module COUNT_tb
+
+Top level modules:
+	COUNT_tb
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/counter_4bit.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/counter_4bit.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module counter_4bit
+
+Top level modules:
+	counter_4bit
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/SHIFT_REG.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/SHIFT_REG.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module SHIFT_REG
+
+Top level modules:
+	SHIFT_REG
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/STIM.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/STIM.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module STIM
+
+Top level modules:
+	STIM
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/ADC_logic.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/ADC_logic.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module ADC_logic
+
+Top level modules:
+	ADC_logic
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/COM_CON_OUT.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/COM_CON_OUT.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module COM_CON_OUT
+
+Top level modules:
+	COM_CON_OUT
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/counter_8bit.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/counter_8bit.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module counter_8bit
+
+Top level modules:
+	counter_8bit
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/COMMAND.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/COMMAND.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module COMMAND
+
+Top level modules:
+	COMMAND
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/SELECT.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/SELECT.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module SELECT
+
+Top level modules:
+	SELECT
+
+} {} {}} C:/Users/y_akagi2025/AppData/Local/quartus/BMI_testbench_single.v {1 {vlog -work work -vopt -stats=none C:/Users/y_akagi2025/AppData/Local/quartus/BMI_testbench_single.v
+Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+-- Compiling module BMI_testbench_single
+
+Top level modules:
+	BMI_testbench_single
+
+} {} {}}
